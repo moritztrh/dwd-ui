@@ -1,0 +1,57 @@
+.container {
+    width: 100%;
+    display: flex;
+    gap: 1rem;
+}
+
+.temperature {
+    width: 2rem;
+}
+
+.indicators {
+    display: flex;    
+}
+
+.indicators .indicator:first-child div:nth-child(2) {
+    border-top-left-radius: 0.5rem;
+    border-bottom-left-radius: 0.5rem;
+}
+
+.indicators .indicator:last-child div:nth-child(2) {
+    border-top-right-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+}
+
+.indicator  {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.color-indicator {
+    display: block;
+    height: 1.75rem;
+    width: 2rem;    
+}
+
+.indicator div {
+    font-size: 0.75rem;
+    width: 2rem;
+    text-align: center;
+}
+
+.indicator div.hour {
+    visibility: hidden;
+}
+
+.indicator div.temperature {
+    visibility: hidden;
+}
+
+.indicator:hover div.temperature {
+    visibility: visible;
+}
+
+.indicator:hover div.hour {
+    visibility: visible;
+}
