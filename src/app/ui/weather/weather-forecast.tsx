@@ -1,6 +1,6 @@
 'use client'
 
-import styles from "./weather-report.module.css";
+import styles from "./weather-forecast.module.css";
 import { use, useEffect, useState } from "react";
 import { getDataByDate, DailyWeatherStationData } from "./data";
 import DailyInfo from "./daily-info";
@@ -28,7 +28,11 @@ export default function WeatherReport() {
     if (isLoading) return <p>Loading ...</p>
     if (!data) return <p>No Data</p>
 
-    return <div className={styles["report-container"]}>{data.results[0].values.map(x => {
-        return (<DailyInfo key={x.date.toISOString()} date={x.date} temperature={x} />)
-    })}</div>
+    return (
+    <div className={styles["weather-forecast"]}>
+        <div className={styles["heading"]}>8-Day-Forecast</div>
+        {data.results[0].values.map(x => {
+            return (<DailyInfo key={x.date.toISOString()} date={x.date} temperature={x} />)
+        })}
+    </div>)
 } 

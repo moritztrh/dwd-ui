@@ -17,7 +17,7 @@ colors[1] = { red: 195, green: 55, blue: 45, alpha: 1}
 
 let gradient = new ColorGradientCreator(colors[0], colors[1])
 gradient.setColor(0.15, colors[0.1])
-gradient.setColor(0.5, colors[0.5])
+gradient.setColor(0.5, colors[0.5]) 
 gradient.setColor(0.85, colors[0.85])  
 
 export default function TemperatureIndicator(props: TemperatureIndicatorProps) {        

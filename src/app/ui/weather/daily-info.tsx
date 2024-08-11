@@ -16,13 +16,15 @@ export default function DailyInfo(props: DailyInfoProps) {
 
     return (
     <>
-        <div className={styles["info-container"]}>
-            <div>{title}</div>            
+        <div className={styles["daily-info"]}>
+            <div className={styles["title"]}>{title}</div>            
             <div className={styles["temperature"]}>
-                <span>{props.temperature.avg}</span>
-                <span>
+                <div className={styles["average-temperature"]}>
+                    {props.temperature.avg}°
+                </div>
+                <div>
                     <TemperatureIndicator temperature={props.temperature} />
-                </span>                
+                </div>            
             </div>
         </div>
     </>)

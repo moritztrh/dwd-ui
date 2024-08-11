@@ -1,10 +1,9 @@
-.info-container {
-    width: 100%;
-    padding: 1rem;
+.daily-info {
+    width: 100%;    
     justify-content: space-between;
     align-items: center;
     display: grid;    
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr;    
 }
 
 .temperature {

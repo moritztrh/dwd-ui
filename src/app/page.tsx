@@ -1,11 +1,12 @@
 import Image from "next/image";
 import styles from "./page.module.css";
-import WeatherReport from "./ui/weather/weather-report";
+import WeatherForecast from "./ui/weather/weather-forecast";
+
 
 export default async function Home() {  
   return (    
     <main className={styles.main}>
-      <WeatherReport />     
+      <WeatherForecast />     
     </main>
   );
 }
