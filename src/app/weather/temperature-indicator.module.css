@@ -1,57 +1,74 @@
-.container {
-    width: 100%;
-    display: flex;
-    gap: 1rem;
+.temperature-indicator {
+    margin: 1rem 0rem;
+    display: grid;
+    grid-template-columns: repeat(24, 1fr);
 }
 
-.temperature {
-    width: 2rem;
+.temperature-indicator:hover .min-temperature * {
+    color: transparent;
 }
 
-.indicators {
-    display: flex;    
+.temperature-indicator:hover .max-temperature * {
+    color: transparent;
 }
 
-.indicators .indicator:first-child div:nth-child(2) {
-    border-top-left-radius: 0.5rem;
-    border-bottom-left-radius: 0.5rem;
+.temperature-indicator:first-child {
+    border-top-left-radius: 0.25rem;
+    border-bottom-left-radius: 0.25rem;
 }
 
-.indicators .indicator:last-child div:nth-child(2) {
-    border-top-right-radius: 0.5rem;
-    border-bottom-right-radius: 0.5rem;
+.temperature-indicator:last-child {
+    border-top-right-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
 }
 
-.indicator  {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.hour-indicator {
+    height: 1rem;
+    width: 1rem;
+    position: relative;    
 }
 
-.color-indicator {
-    display: block;
-    height: 1.75rem;
-    width: 2rem;    
-}
-
-.indicator div {
+.time-info, .temperature-info {
     font-size: 0.75rem;
-    width: 2rem;
-    text-align: center;
+    font-weight: 400;
+    position: absolute;    
+    left: -0.5rem;
+    color: transparent;
+    transition: 0.05s;
 }
 
-.indicator div.hour {
-    visibility: hidden;
+.time-info {
+    top: -1rem;
 }
 
-.indicator div.temperature {
-    visibility: hidden;
+.temperature-info {
+    bottom: -1rem;
 }
 
-.indicator:hover div.temperature {
-    visibility: visible;
+.hour-indicator:hover {
+    border: 1px solid rgba(255, 255, 255, 0.5)
 }
 
-.indicator:hover div.hour {
-    visibility: visible;
+.hour-indicator:hover .time-info {
+    color: #ffffff
+}
+
+.hour-indicator:hover .temperature-info {
+    color: #ffffff
+}
+
+.min-temperature .time-info {
+    color: #ffffff;
+}
+
+.min-temperature .temperature-info {
+    color: #ffffff;
+}
+
+.max-temperature .time-info {
+    color: #ffffff;
+}
+
+.max-temperature .temperature-info {
+    color: #ffffff;
 }

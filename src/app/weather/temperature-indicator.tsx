@@ -4,7 +4,6 @@ import { Color } from "../lib/components/color-gradient/color";
 import { ColorGradientCreator } from "../lib/components/color-gradient/ColorGradientCreator";
 import { TimeSeriesValue } from "./time-series";
 
-
 export type TemperatureIndicatorProps = {
     temperature: DailyProductValue
 }
@@ -21,32 +20,47 @@ gradient.setColor(0.15, colors[0.1])
 gradient.setColor(0.5, colors[0.5]) 
 gradient.setColor(0.85, colors[0.85])  
 
-export default function TemperatureIndicator(props: TemperatureIndicatorProps) {        
-        
+export default function TemperatureIndicator(props: TemperatureIndicatorProps) {                    
     return (
         <>
-            <div className={styles["container"]}>              
-                <div className={styles["indicators"]}>                    
+            <div className={styles["temperature-indicator"]} style={{background: GetGradientForDay(props.temperature)}}>              
                     {props.temperature.values.map(x => {
+                        let classNames = [
+                            styles["hour-indicator"]
+                        ];
+                        if(x.time == props.temperature.min.time){
+                            classNames.push(styles["min-temperature"])
+                        }
+                        if(x.time == props.temperature.max.time){
+                            classNames.push(styles["max-temperature"])
+                        }
                         return (
-                        <div key={x.time.toISOString()}  className={styles["indicator"]}>
-                            <div className={styles["hour"]}>{x.time.getHours()}</div>
-                            <div className={styles["color-indicator"]} style={{background: GetColorStyle(x.value)}} />
-                            <div className={styles[GetTemperatureClassName(x, props.temperature.min, props.temperature.max)]}>{x.value}°</div>
-                        </div>)
-                    })}
-                </div>              
+                            <div key={x.time.toISOString()} 
+                                 className={classNames.join(" ")}>
+                                    <div className={styles["time-info"]}>
+                                        {x.time.toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"})}
+                                    </div>                                
+                                    <div className={styles["temperature-info"]}>
+                                        {x.value}°
+                                    </div>                                
+                            </div>
+                        )
+                    })}                      
             </div>
         </>
     )    
 }
 
-function GetColorStyle(temperature: number): string {           
-    const max: number = 30;
-    let step = temperature / max;
-    let clamped = Math.min(Math.max(step, 0), 1);    
-    let color = gradient.getColorOnGradient(clamped);
-    return `rgb(${color.red}, ${color.green}, ${color.blue}, ${color.alpha})`;
+function GetGradientForDay(daily: DailyProductValue): string {
+    const max: number = 24;
+    let colors: string[] = daily.values.map((x, idx) => {
+        let step = x.value/max;        
+        let color = gradient.getColorOnGradient(step);
+        let gStop = (idx/23)*100;
+        return `rgba(${color.red}, ${color.green}, ${color.blue}, ${color.alpha}) ${gStop}%`
+    });
+    var result = `linear-gradient(90deg, ${colors.join(", ")})`;
+    return result;
 }
 
 function GetTemperatureClassName(value: TimeSeriesValue, min: TimeSeriesValue, max: TimeSeriesValue): string {    
