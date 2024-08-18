@@ -1,8 +1,9 @@
 import styles from "./temperature-indicator.module.css";
 import { DailyProductValue } from "./data";
-import { TimeSeriesValue } from "@/app/lib/types/time-series";
-import { Color } from "../shared/color-gradient/color";
-import { ColorGradientCreator } from "../shared/color-gradient/ColorGradientCreator";
+import { Color } from "../lib/components/color-gradient/color";
+import { ColorGradientCreator } from "../lib/components/color-gradient/ColorGradientCreator";
+import { TimeSeriesValue } from "./time-series";
+
 
 export type TemperatureIndicatorProps = {
     temperature: DailyProductValue

@@ -1,4 +1,4 @@
-import styles from "./daily-info.module.css";
+import styles from "./daily-overview.module.css";
 import TemperatureIndicator from "./temperature-indicator";
 import { DailyProductValue } from "./data";
 
@@ -20,7 +20,7 @@ export default function DailyInfo(props: DailyInfoProps) {
             <div className={styles["title"]}>{title}</div>            
             <div className={styles["temperature"]}>
                 <div className={styles["average-temperature"]}>
-                    {props.temperature.avg}°
+                    {props.temperature.avg}° ⌀
                 </div>
                 <div>
                     <TemperatureIndicator temperature={props.temperature} />
