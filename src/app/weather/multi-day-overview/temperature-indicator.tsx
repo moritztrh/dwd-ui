@@ -1,8 +1,7 @@
 import styles from "./temperature-indicator.module.css";
-import { DailyProductValue } from "./data";
-import { Color } from "../lib/components/color-gradient/color";
-import { ColorGradientCreator } from "../lib/components/color-gradient/ColorGradientCreator";
-import { TimeSeriesValue } from "./time-series";
+import { Color } from "@/app/lib/components/color-gradient/color";
+import { DailyProductValue } from "../data";
+import { ColorGradientCreator } from "@/app/lib/components/color-gradient/ColorGradientCreator";
 
 export type TemperatureIndicatorProps = {
     temperature: DailyProductValue
@@ -61,10 +60,4 @@ function GetGradientForDay(daily: DailyProductValue): string {
     });
     var result = `linear-gradient(90deg, ${colors.join(", ")})`;
     return result;
-}
-
-function GetTemperatureClassName(value: TimeSeriesValue, min: TimeSeriesValue, max: TimeSeriesValue): string {    
-    if(value.time == min.time) return "min-temperature";
-    if(value.time == max.time) return "max-temperature";
-    return "temperature";
 }

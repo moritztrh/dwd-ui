@@ -1,18 +1,32 @@
+import { DailyProductValue } from "../data";
 import styles from "./daily-overview.module.css";
 import TemperatureIndicator from "./temperature-indicator";
-import { DailyProductValue } from "./data";
 
 export type DailyInfoProps = {
     date: Date;
     temperature: DailyProductValue;
 }
 
+const daysOfWeek: string[] = [
+    "Sonntag",
+    "Montag",
+    "Dienstag",
+    "Mittwoch",
+    "Donnerstag",
+    "Freitag",
+    "Samstag"
+]
+
 export default function DailyInfo(props: DailyInfoProps) {    
     
-    let title = props.date.toLocaleDateString();
-    if(title == new Date().toLocaleDateString()){
-        title = "Today"
+    let title: string;
+    if(props.date.getDate() == new Date().getDate()){
+        title = "Heute"
+    } else {
+        title = daysOfWeek[props.date.getDay()] ?? props.date.toLocaleDateString();                            
     }
+    
+    
 
     return (
     <>
