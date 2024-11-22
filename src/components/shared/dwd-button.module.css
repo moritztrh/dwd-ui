@@ -1,0 +1,19 @@
+.dwd-button {
+    font-size: 1rem;
+    padding: 0.75rem;
+    border-radius: 0.125rem;
+    border: 0;
+    color: #ffffff
+}
+
+.primary-button {
+    background-color: #1ABC9C;
+}
+
+.primary-button:hover {
+    background-color: #2ECC71;
+}
+
+.primary-button:active {
+    background-color: #16A085;
+}

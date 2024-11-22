@@ -1,9 +1,0 @@
-.location-form-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: absolute;  
-  top: 33vh;
-  left: 0;
-  right: 0;
-}
