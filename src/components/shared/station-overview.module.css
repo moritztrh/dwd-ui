@@ -1,0 +1,10 @@
+.station-overview > div{
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.coordinates {
+    display: flex;
+    gap: 0.5rem;
+}

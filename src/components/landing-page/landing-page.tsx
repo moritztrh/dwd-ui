@@ -7,6 +7,7 @@ import LocationForm from '../location-form/location-form';
 import DwdPageLayout from '../shared/dwd-page-layout';
 import { useEffect, useState } from 'react';
 import MultiDayOverview from './multi-day-overview/multi-day-overview';
+import StationOverview from '../shared/station-overview';
 
 const LandingPage = () => {
 
@@ -93,7 +94,10 @@ const LandingPage = () => {
                 {
                     data == null 
                     ? <div className={styles["location-form-container"]}><LocationForm onSubmit={handleSubmit}/></div>
-                    : <div><MultiDayOverview data={data}/></div> 
+                    : <div className={styles["data-container"]}>
+                        <StationOverview station={data.station} distance={data.distance}/>
+                        <MultiDayOverview data={data}/>
+                      </div> 
                 }    
             </div>                         
        </DwdPageLayout>
