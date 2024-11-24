@@ -1,5 +1,5 @@
 import styles from './landing-page.module.css'
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { DwdApiClient, WeatherData } from '../../lib/api-client';
 import { AddHours, GetLocalToday } from '../../lib/date-time';
 import { Coordinates, ZipCode } from '../../lib/location';
@@ -86,8 +86,10 @@ const LandingPage = () => {
         fetchData();
     }, [location])
 
+    const navigate = useNavigate();
+
     const handleDaySelect = (date: Date) => {
-        console.log(date);
+        navigate("/details");
     }
 
     if(isLoading) return <p>Loading ...</p>
