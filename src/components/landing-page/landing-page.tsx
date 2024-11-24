@@ -86,6 +86,10 @@ const LandingPage = () => {
         fetchData();
     }, [location])
 
+    const handleDaySelect = (date: Date) => {
+        console.log(date);
+    }
+
     if(isLoading) return <p>Loading ...</p>
 
     return (
@@ -95,8 +99,10 @@ const LandingPage = () => {
                     data == null 
                     ? <div className={styles["location-form-container"]}><LocationForm onSubmit={handleSubmit}/></div>
                     : <div className={styles["data-container"]}>
-                        <StationOverview station={data.station} distance={data.distance}/>
-                        <MultiDayOverview data={data}/>
+                        <StationOverview station={data.station} 
+                                         distance={data.distance}/>
+                        <MultiDayOverview data={data}
+                                          onDaySelect={handleDaySelect}/>
                       </div> 
                 }    
             </div>                         

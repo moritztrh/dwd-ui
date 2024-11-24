@@ -6,7 +6,7 @@ import TemperatureStats from "./temperature-stats";
 
 export type DailyOverViewProps = {
     data: DailyProductResult;
-    onDaySelect?: (date: Date) => void;
+    onDaySelect: (date: Date) => void;
 }
 
 const DailyOverView = (props: DailyOverViewProps) => {
@@ -15,7 +15,8 @@ const DailyOverView = (props: DailyOverViewProps) => {
     let relevantCategories = description.categoryShares.filter(x => x.share > 0.25).map(x => x.category);
 
     return <>
-        <div className={styles["daily-overview"]}>
+        <div className={styles["daily-overview"]}
+             onClick={(_) => props.onDaySelect(props.data.date)}>
             <div>{getDateDescription(props.data.date)}</div>
             <div>{relevantCategories.join(", ")}</div>
             <div>
