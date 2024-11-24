@@ -1,6 +1,9 @@
+import { AirTemperatureResult } from "./products/AirTemperature";
 import { Coordinates, ZipCode } from "./location";
+import { UnknownProduct } from "./products/UnknownProduct";
+import { WeatherDescriptionResult } from "./products/Description";
 
-export type WeatherStationData = {
+export type WeatherData = {
     station: Station;
     distance: number;
     from: Date
@@ -15,13 +18,21 @@ export type Station = {
     longitude: number;
 }
 
-export type ProductResult = {
-    product: String;
-    values: TimeSeriesValue[]
+export interface TimeSeriesValue {
+    time: Date;    
+    type: ValueType
 }
 
-export type TimeSeriesValue = any & {
-    time: Date;    
+export enum ValueType {
+    Measurement,
+    Forecast
+}
+
+export interface ProductResult {
+    product: string;
+    values: TimeSeriesValue[]
+        
+    getForDate(date: Date): ProductResult;
 }
 
 export class DwdApiClient {
@@ -31,7 +42,7 @@ export class DwdApiClient {
         this.baseUrl = baseUrl;        
     }
 
-    public async getWeather(location: Coordinates | ZipCode, from: Date, to: Date) : Promise<WeatherStationData> {
+    public async getWeather(location: Coordinates | ZipCode, from: Date, to: Date) : Promise<WeatherData> {
         
         let parameters: string[] = [];
 
@@ -46,14 +57,14 @@ export class DwdApiClient {
             const zip = `zipCode=${location.value}`;
             parameters.push(zip);
         }
-        
+            
         let fromParameter = `from=${from.toISOString()}`;
         let toParameter = `to=${to.toISOString()}`;
         parameters.push(fromParameter);
         parameters.push(toParameter);
 
         let uri = `${this.baseUrl}/weather?${parameters.join('&')}`; 
-
+        
         const res = await fetch(uri);
         if(!res.ok){
             throw new Error("Failed to fetch data from api.")
@@ -62,26 +73,26 @@ export class DwdApiClient {
         return await this.parseWeatherResponse(res);
     }
 
-    private async parseWeatherResponse(response: Response): Promise<WeatherStationData> {
-        let data : WeatherStationData = await response.json();        
-        let adjusted: WeatherStationData = {
+    
+    private async parseWeatherResponse(response: Response): Promise<WeatherData> {
+        
+        let data : WeatherData = await response.json();        
+        let adjusted: WeatherData = {
             station: data.station,
             distance: data.distance,
             from: data.from,
             to: data.to,
-            results: data.results.map(x => {
-                return {
-                    product: x.product,
-                    values: x.values.map( y => {
-                        return {
-                            time: new Date(y.time),
-                            ...y
-                        }
-                    })
-                }
+            results: data.results.map(x => {                                                
+                switch(x.product){
+                    case "AirTemperature":
+                        return new AirTemperatureResult(x.values);
+                    case "Description":
+                        return new WeatherDescriptionResult(x.values);
+                    default:
+                        return new UnknownProduct(x.product, x.values);
+                };    
             })
-        }
+        }    
         return adjusted;
-    }
-    
+    }    
 }

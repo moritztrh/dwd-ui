@@ -1,11 +1,12 @@
 import styles from './landing-page.module.css'
 import { useSearchParams } from 'react-router-dom';
-import { DwdApiClient, WeatherStationData } from '../../lib/api-client';
+import { DwdApiClient, WeatherData } from '../../lib/api-client';
 import { AddHours, GetLocalToday } from '../../lib/date-time';
 import { Coordinates, ZipCode } from '../../lib/location';
 import LocationForm from '../location-form/location-form';
 import DwdPageLayout from '../shared/dwd-page-layout';
 import { useEffect, useState } from 'react';
+import MultiDayOverview from './multi-day-overview/multi-day-overview';
 
 const LandingPage = () => {
 
@@ -54,7 +55,7 @@ const LandingPage = () => {
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
-    const [data, setData] = useState<WeatherStationData | null>(null);
+    const [data, setData] = useState<WeatherData | null>(null);
     
     const client = new DwdApiClient("https://dwd-api.azurewebsites.net/api/v1");
     
@@ -67,8 +68,8 @@ const LandingPage = () => {
         const fetchData = async () => {
             setIsLoading(true);            
             try {
-                var from = GetLocalToday();
-                var to = AddHours(from, 24);    
+                var from = GetLocalToday();                
+                var to = AddHours(from, 24*10);    
                 var response = await client.getWeather(location, from, to);
                 setData(response);
             } catch(err){
@@ -92,7 +93,7 @@ const LandingPage = () => {
                 {
                     data == null 
                     ? <div className={styles["location-form-container"]}><LocationForm onSubmit={handleSubmit}/></div>
-                    : <div><pre>{JSON.stringify(data, null, 2)}</pre></div> 
+                    : <div><MultiDayOverview data={data}/></div> 
                 }    
             </div>                         
        </DwdPageLayout>

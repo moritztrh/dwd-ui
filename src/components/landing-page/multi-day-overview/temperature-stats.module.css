@@ -1,0 +1,20 @@
+.temperature-stats {
+    display: flex;
+    gap: 1rem;
+    align-items: center;;
+}
+
+.temperature-stats > .avg {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.temperature-stats > .min-max {
+    display: flex;
+    flex-direction: column;    
+}
+
+.temperature-stats > .min-max > div {
+    display: flex;
+    gap: 0.25rem;
+}

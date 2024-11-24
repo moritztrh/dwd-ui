@@ -1,8 +1,12 @@
-export function GetLocalToday() : Date {
-    let now = new Date();    
-    now.setHours(0,0,0,0);
-    let offsetInMinutes = now.getTimezoneOffset();    
-    return AddHours(now, offsetInMinutes/60)    
+export function GetLocalToday() : Date {    
+    const now = new Date();        
+    return new Date(now.getFullYear(), now.getMonth(), now.getDate())
+}
+
+export function GetStartOfDay(date: Date) : Date {
+    let result = new Date(date.getTime());
+    result.setHours(0,0,0,0);
+    return result;
 }
 
 export function AddHours(date: Date, hours: number): Date {
