@@ -1,5 +1,18 @@
 .daily-overview {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    display: grid;    
+    align-items: center;        
+    grid-template-columns: repeat(3, 1fr);
+
+    border: 1px solid black;
+    padding: 1rem;
+    border-radius: 0.25rem;
+}
+
+.daily-overview:hover {
+    box-shadow: 1px 1px 1px 1px;
+    cursor: pointer;
+}
+
+.daily-overview > div:last-child {
+    justify-items: end;
 }

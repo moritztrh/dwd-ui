@@ -19,14 +19,10 @@ const TemperatureStats = (props: TemperatureStatsProps) => {
                 <span>{avg}</span>
             </div>  
             <div className={styles["min-max"]}>
-                <div>
-                    <span>max</span>
-                    <span>{max}</span>
-                </div>
-                <div>
-                    <span>max</span>
-                    <span>{min}</span>
-                </div>                
+                <span>max</span>
+                <span>{max}</span>
+                <span>min</span>
+                <span>{min}</span>   
             </div>                      
         </div>
     </>

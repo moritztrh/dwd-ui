@@ -10,8 +10,14 @@
 }
 
 .temperature-stats > .min-max {
-    display: flex;
-    flex-direction: column;    
+    display: grid;    
+    grid-template-columns: repeat(2, 1fr);    
+    gap: 0rem 0.25rem;
+    width: 4.5rem;
+}
+
+.temperature-stats span:nth-child(even){
+    text-align: right;    
 }
 
 .temperature-stats > .min-max > div {

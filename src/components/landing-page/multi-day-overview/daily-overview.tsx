@@ -16,7 +16,7 @@ const DailyOverView = (props: DailyOverViewProps) => {
 
     return <>
         <div className={styles["daily-overview"]}>
-            <div>{toShortDateString(props.data.date)}</div>
+            <div>{getDateDescription(props.data.date)}</div>
             <div>{relevantCategories.join(", ")}</div>
             <div>
                 <TemperatureStats min={temperature.min}
@@ -27,9 +27,24 @@ const DailyOverView = (props: DailyOverViewProps) => {
     </>
 }
 
-function toShortDateString(date: Date): string {
-    let locale = date.toLocaleDateString();
-    return locale.slice(0, locale.length - 4);
+const daysOfWeek: string[] = [
+    "Sonntag",
+    "Montag",
+    "Dienstag",
+    "Mittwoch",
+    "Donnerstag",
+    "Freitag",
+    "Samstag"
+];
+
+function getDateDescription(date: Date): string {
+    if(date.getDate() === new Date().getDate()){
+        return "Heute";
+    }
+    let dayOfWeek = daysOfWeek[date.getDay()].slice(0,2);
+    let locale = date.toLocaleDateString();    
+    let shortendLocal = locale.slice(0, locale.length - 4);
+    return `${dayOfWeek} ${shortendLocal}`;
 }
 
 export default DailyOverView;
