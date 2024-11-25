@@ -1,6 +1,6 @@
-import { ProductResult, Station, TimeSeriesValue, WeatherData } from "../../../lib/api-client";
-import { AirTemperatureResult } from "../../../lib/products/AirTemperature";
+import { ProductResult, Station, WeatherData } from "../../../lib/api-types";
 import { GetStartOfDay } from "../../../lib/date-time";
+
 
 export type DailyWeatherData = {
     station: Station;

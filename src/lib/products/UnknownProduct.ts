@@ -1,6 +1,5 @@
-import { ProductResult, TimeSeriesValue } from "../api-client";
+import { ProductResult, TimeSeriesValue } from "../api-types";
 import { GetStartOfDay, AddHours } from "../date-time";
-
 
 export class UnknownProduct implements ProductResult {
     product: string;

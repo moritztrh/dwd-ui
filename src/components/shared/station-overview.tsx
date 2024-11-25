@@ -1,5 +1,5 @@
+import { Station } from "../../lib/api-types";
 import styles from "./station-overview.module.css";
-import { Station } from "../../lib/api-client"
 
 export type StationOverviewProps = {
     station: Station;

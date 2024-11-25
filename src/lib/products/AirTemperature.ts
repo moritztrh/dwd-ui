@@ -1,6 +1,5 @@
-import { ProductResult, ValueType, TimeSeriesValue } from "../api-client";
+import { ProductResult, TimeSeriesValue, ValueType } from "../api-types";
 import { GetStartOfDay, AddHours } from "../date-time";
-
 
 export class AirTemperatureResult implements ProductResult {
     product: string = "Air Temperature";

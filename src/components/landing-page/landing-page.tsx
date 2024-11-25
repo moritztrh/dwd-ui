@@ -1,13 +1,13 @@
 import styles from './landing-page.module.css'
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { DwdApiClient, WeatherData } from '../../lib/api-client';
 import { AddHours, GetLocalToday } from '../../lib/date-time';
-import { Coordinates, ZipCode } from '../../lib/location';
 import LocationForm from '../location-form/location-form';
 import DwdPageLayout from '../shared/dwd-page-layout';
 import { useEffect, useState } from 'react';
 import MultiDayOverview from './multi-day-overview/multi-day-overview';
 import StationOverview from '../shared/station-overview';
+import useWeather from '../../lib/weather-hook';
+import { Coordinates, ZipCode } from '../../lib/api-types';
 
 const LandingPage = () => {
 
@@ -54,36 +54,16 @@ const LandingPage = () => {
         setLocation(newLocation)
     }, [searchParams])
 
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [error, setError] = useState<string | null>(null);
-    const [data, setData] = useState<WeatherData | null>(null);
-    
-    const client = new DwdApiClient("https://dwd-api.azurewebsites.net/api/v1");
-    
-    useEffect(() => {                  
-        if(location == null) {
-            setData(null);
+    const {data, loading, error, triggerWeather, resetWeather} = useWeather();            
+    useEffect(() => {             
+        if(location == null) {         
+            resetWeather();
             return;
         };
 
-        const fetchData = async () => {
-            setIsLoading(true);            
-            try {
-                var from = GetLocalToday();                
-                var to = AddHours(from, 24*10);    
-                var response = await client.getWeather(location, from, to);
-                setData(response);
-            } catch(err){
-                if (typeof err === "string"){
-                    setError(err);
-                } else if(err instanceof Error){
-                    setError(err.message)
-                }                
-            } finally {
-                setIsLoading(false);
-            }
-        }
-        fetchData();
+        const from = GetLocalToday();                
+        const to = AddHours(from, 24*10);  
+        triggerWeather(location, from, to);
     }, [location])
 
     const navigate = useNavigate();
@@ -92,7 +72,8 @@ const LandingPage = () => {
         navigate("/details");
     }
 
-    if(isLoading) return <p>Loading ...</p>
+    if(loading) return <p>Loading ...</p>
+    if(error) return <p>Error: {error}</p>
 
     return (
        <DwdPageLayout title='Weather'>      

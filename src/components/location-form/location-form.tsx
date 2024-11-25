@@ -1,8 +1,8 @@
 import { FormEvent } from 'react';
 import DwdButton, { DwdButtonType } from '../shared/dwd-button';
 import DwdInput, { DwdInputType } from '../shared/dwd-input';
-import { Coordinates, ZipCode } from '../../lib/location';
 import styles from './location-form.module.css'
+import { Coordinates, ZipCode } from '../../lib/api-types';
 
 type LocationFormProps = {
     onSubmit: (location: Coordinates | ZipCode) => void;

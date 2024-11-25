@@ -1,5 +1,6 @@
-import { ProductResult, TimeSeriesValue, ValueType } from "../api-client";
+import { ProductResult, TimeSeriesValue, ValueType } from "../api-types";
 import { AddHours, GetStartOfDay } from "../date-time";
+
 
 type WeatherCategoryShare = {
     category: WeatherCategory;

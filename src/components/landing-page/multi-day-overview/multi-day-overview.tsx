@@ -1,7 +1,7 @@
 import styles from "./multi-day-overview.module.css";
-import { WeatherData } from "../../../lib/api-client"
 import DailyOverView from "./daily-overview";
 import { groupByDay } from "./data";
+import { WeatherData } from "../../../lib/api-types";
 
 export type MultiDayOverviewProps = {
     data: WeatherData;
