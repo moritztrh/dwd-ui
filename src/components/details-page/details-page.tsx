@@ -3,6 +3,8 @@ import useLocationParams from "../../lib/location-param-hook";
 import useWeather from "../../lib/weather-hook";
 import { AddHours } from "../../lib/date-time";
 import { useEffect, useState } from "react";
+import DwdTemperatureChart from "../shared/dwd-temperature-chart";
+import { AirTemperatureResult } from "../../lib/products/AirTemperature";
 
 const DetailsPage = () => {
     const [date, setDate] = useState<Date | null>();
@@ -24,9 +26,12 @@ const DetailsPage = () => {
     if(error) return <p>Error: {error}</p>
     if(!data) return <p></p>;
 
+    const airTemp = data.results.filter(x => x instanceof AirTemperatureResult)[0] as AirTemperatureResult;    
     return <div>
         <h1>{date!.toLocaleDateString()}</h1>
-        <div><pre>{JSON.stringify(data, null, 2)}</pre></div>
+        <div>
+            <DwdTemperatureChart data={airTemp}/>
+        </div>
     </div>
 }
 

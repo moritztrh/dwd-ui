@@ -37,8 +37,8 @@ export interface TimeSeriesValue {
 }
 
 export enum ValueType {
-    Measurement,
-    Forecast
+    Measurement = "Measurement",
+    Forecast = "Forecast"
 }
 
 export interface ProductResult {
