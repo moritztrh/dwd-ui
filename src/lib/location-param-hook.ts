@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useLocation } from "react-router-dom";
 import { Coordinates, ZipCode } from "./api-types";
 
 
 export type LocationState = {
-    location: Coordinates | ZipCode | null;
+    location: Coordinates | ZipCode | null;    
     setLocation: (location: Coordinates | ZipCode | null) => void;
 }
 
 function useLocationParams() : LocationState {
     const [searchParams, setSearchParams] = useSearchParams();
     const [location, setLocation] = useState<Coordinates | ZipCode | null>(null);
-
+         
     const getLocationFromUrl = (searchParams: URLSearchParams) : ZipCode | Coordinates | null  => {
         const zip = searchParams.get("zip")
         if(zip && zip.length == 5){
@@ -29,7 +29,7 @@ function useLocationParams() : LocationState {
 
     useEffect(() => {
         const newLocation = getLocationFromUrl(searchParams);
-        if(location === newLocation) return;
+        if(location === newLocation) return;        
         setLocation(newLocation);
     }, [searchParams])
 

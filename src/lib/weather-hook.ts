@@ -48,6 +48,8 @@ async function parseWeatherResponse(response: Response): Promise<WeatherData> {
             };    
         })
     }    
+
+    console.log(adjusted);
     return adjusted;
 }
 

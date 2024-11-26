@@ -1,9 +1,9 @@
 import styles from './landing-page.module.css'
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { AddHours, GetLocalToday } from '../../lib/date-time';
 import LocationForm from '../location-form/location-form';
 import DwdPageLayout from '../shared/dwd-page-layout';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import MultiDayOverview from './multi-day-overview/multi-day-overview';
 import StationOverview from '../shared/station-overview';
 import useWeather from '../../lib/weather-hook';
@@ -11,9 +11,9 @@ import { Coordinates, ZipCode } from '../../lib/api-types';
 import useLocationParams from '../../lib/location-param-hook';
 
 const LandingPage = () => {
+    const {location, setLocation} = useLocationParams();
+    const [searchParams] = useSearchParams();
 
-    const {location, setLocation}= useLocationParams();
-     
     const handleSubmit = async (location: Coordinates | ZipCode) => {
         setLocation(location);
     }
@@ -32,11 +32,15 @@ const LandingPage = () => {
 
 
     const navigate = useNavigate();
-    const handleDaySelect = (date: Date) => {
-        navigate("/details");
+        
+    const handleDaySelect = (date: Date) => {                 
+        const params = new URLSearchParams(searchParams);
+        params.set("date", date.toISOString());       
+        const url = `/details?${params.toString()}`;         
+        navigate(url);
     }
 
-    
+
     if(loading) return <p>Loading ...</p>
     if(error) return <p>Error: {error}</p>
 
