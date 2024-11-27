@@ -51,7 +51,7 @@ export class WeatherDescriptionResult implements ProductResult {
     }
 }
 
-enum WeatherCategory {
+export enum WeatherCategory {
     Clear,
     Cloudy,
     Fog,
