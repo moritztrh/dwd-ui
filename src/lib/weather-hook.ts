@@ -31,26 +31,28 @@ function buildUrl(location: Coordinates | ZipCode, from: Date, to: Date) : strin
 }
 
 async function parseWeatherResponse(response: Response): Promise<WeatherData> {        
-    let data : WeatherData = await response.json();        
-    let adjusted: WeatherData = {
-        station: data.station,
-        distance: data.distance,
-        from: data.from,
-        to: data.to,
-        results: data.results.map(x => {                                                
-            switch(x.product){
-                case "AirTemperature":
-                    return new AirTemperatureResult(x.values);
-                case "Description":
-                    return new WeatherDescriptionResult(x.values);
-                default:
-                    return new UnknownProduct(x.product, x.values);
-            };    
-        })
+    try {
+        let data : WeatherData = await response.json();        
+        let adjusted: WeatherData = {
+            station: data.station,
+            distance: data.distance,
+            from: data.from,
+            to: data.to,
+            results: data.results.map(x => {                                                
+                switch(x.product){
+                    case "AirTemperature":
+                        return new AirTemperatureResult(x.values);
+                    case "Description":
+                        return new WeatherDescriptionResult(x.values);
+                    default:
+                        return new UnknownProduct(x.product, x.values);
+                };    
+            })
+        }                
+        return adjusted;
+    } catch(ex: unknown){
+        throw new Error(`Error while parsing api response: ${ex}`)
     }    
-
-    console.log(adjusted);
-    return adjusted;
 }
 
 export type WeatherFetchState = {

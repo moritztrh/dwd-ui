@@ -22,7 +22,7 @@ export class WeatherDescriptionResult implements ProductResult {
     mapTimeSeriesValues(values: TimeSeriesValue[]): WeatherDescription[] {
         return values.map(x => {
             var raw = x as WeatherDescription;
-            return new WeatherDescription(new Date(raw.time), raw.type, raw.category.toString());
+            return new WeatherDescription(new Date(raw.time), raw.type, raw.category?.toString());
         })
     }
         
