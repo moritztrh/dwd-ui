@@ -6,7 +6,7 @@ import DwdPageLayout from '../shared/dwd-page-layout';
 import { useEffect } from 'react';
 import MultiDayOverview from './multi-day-overview/multi-day-overview';
 import StationOverview from '../shared/station-overview';
-import useWeather from '../../lib/weather-hook';
+import useWeather, { useWeatherMock } from '../../lib/weather-hook';
 import { Coordinates, ZipCode } from '../../lib/api-types';
 import useLocationParams from '../../lib/location-param-hook';
 
@@ -18,7 +18,7 @@ const LandingPage = () => {
         setLocation(location);
     }
 
-    const {data, loading, error, triggerWeather, resetWeather} = useWeather();            
+    const {data, loading, error, triggerWeather, resetWeather} = useWeatherMock();            
     useEffect(() => {             
         if(location == null) {         
             resetWeather();

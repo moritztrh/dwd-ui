@@ -1,6 +1,6 @@
 import { useLocation, useSearchParams } from "react-router-dom";
 import useLocationParams from "../../lib/location-param-hook";
-import useWeather from "../../lib/weather-hook";
+import useWeather, { useWeatherMock } from "../../lib/weather-hook";
 import { AddHours } from "../../lib/date-time";
 import { useEffect, useState } from "react";
 import DwdWeatherChart from "../shared/dwd-weather-chart";
@@ -11,7 +11,7 @@ const DetailsPage = () => {
     const [date, setDate] = useState<Date | null>();
     const {location} = useLocationParams();
     const [searchParams] = useSearchParams()
-    const {data, loading, error, triggerWeather} = useWeather();
+    const {data, loading, error, triggerWeather} = useWeatherMock();
 
     useEffect(() => {       
         const rawDate = searchParams.get("date");         

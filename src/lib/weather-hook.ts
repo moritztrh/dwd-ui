@@ -3,6 +3,8 @@ import { WeatherDescriptionResult } from "./products/Description";
 import { UnknownProduct } from "./products/UnknownProduct";
 import useFetch from "./fetch-hook";
 import { Coordinates, WeatherData, ZipCode } from "./api-types";
+import { useState } from "react";
+import mockData from "./mock/api-response.json";
 
 const BASE_URL = "https://dwd-api.azurewebsites.net/api/v1";
 
@@ -33,7 +35,16 @@ function buildUrl(location: Coordinates | ZipCode, from: Date, to: Date) : strin
 async function parseWeatherResponse(response: Response): Promise<WeatherData> {        
     try {
         let data : WeatherData = await response.json();        
-        let adjusted: WeatherData = {
+        let adjusted = parseWeatherData(data);  
+        return adjusted;
+    } catch(ex: unknown){
+        throw new Error(`Error while parsing api response: ${ex}`)
+    }    
+}
+
+function parseWeatherData(data: WeatherData) : WeatherData {
+    try {     
+        const adjusted: WeatherData = {
             station: data.station,
             distance: data.distance,
             from: data.from,
@@ -51,7 +62,7 @@ async function parseWeatherResponse(response: Response): Promise<WeatherData> {
         }                
         return adjusted;
     } catch(ex: unknown){
-        throw new Error(`Error while parsing api response: ${ex}`)
+        throw new Error(`Error while parsing data: ${ex}`)
     }    
 }
 
@@ -73,6 +84,41 @@ function useWeather() : WeatherFetchState {
     };
 
     return {data, loading, error, triggerWeather, resetWeather: resetData};
+}
+
+export function useWeatherMock() : WeatherFetchState {
+    const [data, setData] = useState<WeatherData | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const triggerWeather = (location: Coordinates | ZipCode, from: Date, to: Date) => {
+        setLoading(true);
+        setError(null);
+        
+        setTimeout(() => {
+            try {
+                const mock: WeatherData = JSON.parse(JSON.stringify(mockData));
+                const parsed = parseWeatherData(mock);
+                parsed.results.forEach(r => {
+                    r.values = r.values.filter(x => x.time >= from && x.time < to)
+                });
+                setData(parsed);
+            } catch(err){
+                setError("Error fetchin mock data.");
+                setData(null);
+            } finally {
+                setLoading(false);
+            }
+        }, 500);
+    };
+
+    const resetWeather = () => {
+        setData(null);
+        setError(null);
+        setLoading(false);
+    }
+
+    return { data, loading, error, triggerWeather, resetWeather };
 }
 
 export default useWeather;
