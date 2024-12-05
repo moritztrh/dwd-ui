@@ -5,13 +5,15 @@ import { ValueType } from '../../lib/api-types';
 import { LinePath } from "@visx/shape";
 import { scaleLinear, scaleTime } from "@visx/scale";
 import { AxisBottom, AxisLeft, TickFormatter } from "@visx/axis";
-import { GridRows } from '@visx/grid';
+import { GridColumns, GridRows } from '@visx/grid';
 import { Text } from '@visx/text';
+import { SolarEvents } from '../../lib/solar-events';
 
 
 export type DwdTemperatureChartProps = {
     temperature: AirTemperatureResult | null;
     descriptions: WeatherDescriptionResult | null;
+    solarEvents: SolarEvents | null;
     width?: number;
     height?: number;
 }
@@ -21,18 +23,18 @@ type ValueCollections<T> = {
     forecasts: T[];
 }
 
-const DwdWeatherChart = (props: DwdTemperatureChartProps) => {    
-    if(!props?.temperature) return <div>No Data</div>
+const DwdWeatherChart = (props: DwdTemperatureChartProps) => {
+    if (!props?.temperature) return <div>No Data</div>
 
     const width = props.width ?? 800;
     const height = props.height ?? 400;
 
-    const margin = {top: 75, right: 50, bottom: 75, left: 50};
+    const margin = { top: 75, right: 50, bottom: 75, left: 50 };
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
 
     const xScale = scaleTime<number>({
-        domain: [props.temperature.values[0].time, props.temperature.values[props.temperature.values.length-1].time],
+        domain: [props.temperature.values[0].time, props.temperature.values[props.temperature.values.length - 1].time],
         range: [0, innerWidth]
     });
 
@@ -40,103 +42,126 @@ const DwdWeatherChart = (props: DwdTemperatureChartProps) => {
 
     const min = (props.temperature.min?.temperature ?? 0);
     const max = (props.temperature.max?.temperature ?? 0);
-    const room = (max - min)*0.05;
+    const room = (max - min) * 0.05;
 
     const yScale = scaleLinear<number>({
         range: [innerHeight, 0],
-        domain: [min-room, max+room],
+        domain: [min - room, max + room],
         nice: true
     });
 
 
-    const formatDate: TickFormatter<Date | any> = (date: Date) : string => {
-        if(date.getHours() == 0) return date.toLocaleDateString();
+    const formatDate: TickFormatter<Date | any> = (date: Date): string => {
+        if (date.getHours() == 0) return date.toLocaleDateString();
         return date.toLocaleTimeString();
     }
 
     const airTempData = getTemperature(props.temperature);
     const descriptions = getDescriptions(props.descriptions);
 
+    const dawnX = xScale(props.solarEvents?.dawn!)
+    const sunriseX = xScale(props.solarEvents?.sunrise!)
+
+    const sunsetX = xScale(props.solarEvents?.sunset!)
+    const duskX = xScale(props.solarEvents?.dusk!)
+
     return (
         <div className={styles["chart-container"]}>
             <svg width={width} height={height}>
-                <g transform={`translate(${margin.left}, ${margin.top})`}>                    
-                    <GridRows scale={yScale} width={innerWidth}/>
-                    {descriptions.measurements.filter((x,i) => i % 2 == 0).map(x => {
+                <g transform={`translate(${margin.left}, ${margin.top})`}>
+                    <rect className={styles["early-morning"]}
+                        x={0}
+                        width={dawnX}
+                        height={innerHeight} />
+                    <rect className={styles["sunrise"]}
+                        x={dawnX}
+                        width={sunriseX - dawnX}
+                        height={innerHeight} />
+                    <rect className={styles["sunset"]}
+                        x={sunsetX}
+                        width={duskX - sunsetX}
+                        height={innerHeight} />
+                    <rect className={styles["night"]}
+                        x={duskX}
+                        width={innerWidth - duskX}
+                        height={innerHeight} />
+
+                    <GridRows scale={yScale} width={innerWidth} />
+                    {descriptions.measurements.filter((x, i) => i % 2 == 0).map(x => {
                         return (
-                            <Text x={getXPosition(x.time)}                                   
-                                  angle={-45}>{WeatherCategory[x.category]}</Text>
+                            <Text x={getXPosition(x.time)}
+                                angle={-45}>{WeatherCategory[x.category]}</Text>
                         )
                     })}
-                    {descriptions.forecasts.filter((x,i) => i % 2 != 0).map(x => {
+                    {descriptions.forecasts.filter((x, i) => i % 2 != 0).map(x => {
                         return (
-                            <Text x={getXPosition(x.time)}                                   
-                                  angle={-45}>{WeatherCategory[x.category]}</Text>
+                            <Text x={getXPosition(x.time)}
+                                angle={-45}>{WeatherCategory[x.category]}</Text>
                         )
-                    })}   
-                    <LinePath<AirTemperature> 
+                    })}
+                    <LinePath<AirTemperature>
                         data={airTempData.measurements}
                         stroke={"rgb(0, 0, 0)"}
                         strokeWidth={3}
-                        x={d => xScale(d.time)} 
+                        x={d => xScale(d.time)}
                         y={d => yScale(d.temperature ?? 0)} />
-                    <LinePath<AirTemperature> 
+                    <LinePath<AirTemperature>
                         data={airTempData.forecasts}
                         stroke={"rgb(0, 0, 0)"}
                         strokeWidth={3}
                         strokeDasharray={"5 10"}
-                        x={d => xScale(d.time)} 
+                        x={d => xScale(d.time)}
                         y={d => yScale(d.temperature ?? 0)} />
-                    <AxisLeft 
+                    <AxisLeft
                         left={0}
                         scale={yScale}
                         numTicks={5} />
-                    <AxisBottom 
+                    <AxisBottom
                         top={innerHeight}
                         scale={xScale}
-                        numTicks={10}                        
+                        numTicks={10}
                         tickFormat={formatDate} />
-               
+
                 </g>
             </svg>
-        </div>
+        </div >
     )
 };
 
-function getTemperature(data: AirTemperatureResult | null) : ValueCollections<AirTemperature> {
+function getTemperature(data: AirTemperatureResult | null): ValueCollections<AirTemperature> {
     let measurements: AirTemperature[] = [];
     let forecasts: AirTemperature[] = []
-    if(!data) return {measurements, forecasts};
+    if (!data) return { measurements, forecasts };
 
-    data.values.forEach(x => {        
-        if(x.type === ValueType.Measurement){
+    data.values.forEach(x => {
+        if (x.type === ValueType.Measurement) {
             measurements.push(x);
         } else {
             forecasts.push(x);
         }
     });
-    
-    if(forecasts.length > 0){
+
+    if (forecasts.length > 0) {
         measurements.push(forecasts[0])
     }
 
-    return {measurements, forecasts};
+    return { measurements, forecasts };
 }
 
-function getDescriptions(data: WeatherDescriptionResult | null) : ValueCollections<WeatherDescription> {
+function getDescriptions(data: WeatherDescriptionResult | null): ValueCollections<WeatherDescription> {
     let measurements: WeatherDescription[] = [];
     let forecasts: WeatherDescription[] = []
-    if(!data) return {measurements, forecasts};
+    if (!data) return { measurements, forecasts };
 
-    data.values.forEach(x => {        
-        if(x.type === ValueType.Measurement){
+    data.values.forEach(x => {
+        if (x.type === ValueType.Measurement) {
             measurements.push(x);
         } else {
             forecasts.push(x);
         }
     });
 
-    return {measurements, forecasts};
+    return { measurements, forecasts };
 }
 
 export default DwdWeatherChart;

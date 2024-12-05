@@ -3,8 +3,11 @@ import { AirTemperatureResult } from "../../../lib/products/AirTemperature";
 import { WeatherDescriptionResult } from "../../../lib/products/Description";
 import { DailyProductResult } from "./data";
 import TemperatureStats from "./temperature-stats";
+import { calculateSolarEvents } from "../../../lib/solar-events";
+import { Coordinates, Station } from "../../../lib/api-types";
 
 export type DailyOverViewProps = {
+    coordinates: Coordinates;
     data: DailyProductResult;
     onDaySelect: (date: Date) => void;
 }

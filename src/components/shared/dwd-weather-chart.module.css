@@ -1,3 +1,15 @@
-svg {
-    margin: 15rem;
+.early-morning {
+    fill: rgba(0, 0, 0, 0.25);
+}
+
+.sunrise {
+    fill: rgba(0, 0, 0, 0.15);
+}
+
+.sunset {
+    fill: rgba(0, 0, 0, 0.15);
+}
+
+.night {
+    fill: rgba(0, 0, 0, 0.25);
 }
