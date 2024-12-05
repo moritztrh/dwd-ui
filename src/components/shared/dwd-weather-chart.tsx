@@ -8,14 +8,13 @@ import { AxisBottom, AxisLeft, TickFormatter } from "@visx/axis";
 import { GridColumns, GridRows } from '@visx/grid';
 import { Text } from '@visx/text';
 import { SolarEvents } from '../../lib/solar-events';
+import { ScaleSVG, useParentSize } from '@visx/responsive';
 
 
 export type DwdTemperatureChartProps = {
     temperature: AirTemperatureResult | null;
     descriptions: WeatherDescriptionResult | null;
     solarEvents: SolarEvents | null;
-    width?: number;
-    height?: number;
 }
 
 type ValueCollections<T> = {
@@ -24,10 +23,8 @@ type ValueCollections<T> = {
 }
 
 const DwdWeatherChart = (props: DwdTemperatureChartProps) => {
+    const {parentRef, width, height} = useParentSize({ debounceTime: 150, enableDebounceLeadingCall: true })
     if (!props?.temperature) return <div>No Data</div>
-
-    const width = props.width ?? 800;
-    const height = props.height ?? 400;
 
     const margin = { top: 75, right: 50, bottom: 75, left: 50 };
     const innerWidth = width - margin.left - margin.right;
@@ -66,8 +63,8 @@ const DwdWeatherChart = (props: DwdTemperatureChartProps) => {
     const duskX = xScale(props.solarEvents?.dusk!)
 
     return (
-        <div className={styles["chart-container"]}>
-            <svg width={width} height={height}>
+        <div ref={parentRef} className={styles["chart-container"]}>
+            <ScaleSVG width={width} height={height}>
                 <g transform={`translate(${margin.left}, ${margin.top})`}>
                     <rect className={styles["early-morning"]}
                         x={0}
@@ -123,7 +120,7 @@ const DwdWeatherChart = (props: DwdTemperatureChartProps) => {
                         tickFormat={formatDate} />
 
                 </g>
-            </svg>
+            </ScaleSVG>
         </div >
     )
 };

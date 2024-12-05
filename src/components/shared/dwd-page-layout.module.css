@@ -1,3 +1,4 @@
 .page-container {
-    padding: 1rem;      
+    padding: 1rem;         
+    height: calc(100vh - 2rem);
 }

@@ -9,6 +9,7 @@ import { AirTemperatureResult } from "../../lib/products/AirTemperature";
 import { WeatherDescriptionResult } from "../../lib/products/Description";
 import { SolarEvents, calculateSolarEvents } from "../../lib/solar-events";
 import DwdPageLayout from "../shared/dwd-page-layout";
+import StationOverview from '../shared/station-overview';
 
 const DetailsPage = () => {
     const [date, setDate] = useState<Date | null>();
@@ -44,16 +45,15 @@ const DetailsPage = () => {
     const descriptions = data.results.filter(x => x instanceof WeatherDescriptionResult)[0] as WeatherDescriptionResult;
     return (
         <DwdPageLayout title="Weather">
-            <div className={styles["content"]}>
-                <h1>{date!.toLocaleDateString()}</h1>
-                <pre>
-                    {JSON.stringify(solarEvents)}
-                </pre>
-                <div className={styles["chart-container"]}>
-                    <DwdWeatherChart temperature={airTemp}
-                        descriptions={descriptions}
-                        solarEvents={solarEvents} />
-                </div>
+            <div className={styles["meta"]}>
+                <StationOverview station={data.station}
+                                 distance={data.distance} />
+                <h1>{date!.toLocaleDateString()}</h1>      
+            </div>                     
+            <div className={styles["chart-container"]}>             
+                <DwdWeatherChart temperature={airTemp}
+                                 descriptions={descriptions}
+                                 solarEvents={solarEvents}/>
             </div>
         </DwdPageLayout>)
 

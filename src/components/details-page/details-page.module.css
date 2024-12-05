@@ -1,1 +1,10 @@
-.content {}
+.meta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;    
+}
+
+.chart-container {
+    height: 50vh;   
+    max-height: 750px;  
+}
