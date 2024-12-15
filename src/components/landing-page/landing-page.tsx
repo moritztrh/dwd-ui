@@ -9,6 +9,8 @@ import StationOverview from '../shared/station-overview';
 import useWeather, { useWeatherMock } from '../../lib/weather-hook';
 import { Coordinates, ZipCode } from '../../lib/api-types';
 import useLocationParams from '../../lib/location-param-hook';
+import DwdWeatherVisualizer from '../shared/dwd-weather-visualizer';
+import { WeatherCategory } from '../../lib/products/Description';
 
 const LandingPage = () => {
     const { location, setLocation } = useLocationParams();
@@ -43,8 +45,8 @@ const LandingPage = () => {
     if (loading) return <p>Loading ...</p>
     if (error) return <p>Error: {error}</p>
 
-    return (
-        <DwdPageLayout title='Weather'>
+    return (        
+        <DwdPageLayout title='Weather'>        
             <div className={styles["page-layout"]}>
                 {
                     data == null

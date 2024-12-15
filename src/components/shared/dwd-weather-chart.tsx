@@ -83,28 +83,34 @@ const DwdWeatherChart = (props: DwdTemperatureChartProps) => {
                         width={innerWidth - duskX}
                         height={innerHeight} />
 
-                    <GridRows scale={yScale} width={innerWidth} />
+                    <GridRows scale={yScale} width={innerWidth} stroke='rgba(255, 255, 255, 0.33)' />
                     {descriptions.measurements.filter((x, i) => i % 2 == 0).map(x => {
                         return (
                             <Text x={getXPosition(x.time)}
-                                angle={-45}>{WeatherCategory[x.category]}</Text>
+                                  angle={-45}
+                                  fill='white'>
+                                    {WeatherCategory[x.category]}
+                            </Text>
                         )
                     })}
                     {descriptions.forecasts.filter((x, i) => i % 2 != 0).map(x => {
                         return (
                             <Text x={getXPosition(x.time)}
-                                angle={-45}>{WeatherCategory[x.category]}</Text>
+                                  angle={-45}
+                                  fill='white'>
+                                    {WeatherCategory[x.category]}
+                            </Text>
                         )
                     })}
                     <LinePath<AirTemperature>
                         data={airTempData.measurements}
-                        stroke={"rgb(0, 0, 0)"}
+                        stroke={"white"}
                         strokeWidth={3}
                         x={d => xScale(d.time)}
                         y={d => yScale(d.temperature ?? 0)} />
                     <LinePath<AirTemperature>
                         data={airTempData.forecasts}
-                        stroke={"rgb(0, 0, 0)"}
+                        stroke={"white"}
                         strokeWidth={3}
                         strokeDasharray={"5 10"}
                         x={d => xScale(d.time)}
@@ -112,11 +118,12 @@ const DwdWeatherChart = (props: DwdTemperatureChartProps) => {
                     <AxisLeft
                         left={0}
                         scale={yScale}
-                        numTicks={5} />
+                        numTicks={5}                        
+                        label='Temperature'/>
                     <AxisBottom
                         top={innerHeight}
                         scale={xScale}
-                        numTicks={10}
+                        numTicks={10}                        
                         tickFormat={formatDate} />
 
                 </g>
