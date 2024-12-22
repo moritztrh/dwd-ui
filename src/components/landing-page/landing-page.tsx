@@ -9,8 +9,9 @@ import StationOverview from '../shared/station-overview';
 import useWeather, { useWeatherMock } from '../../lib/weather-hook';
 import { Coordinates, ZipCode } from '../../lib/api-types';
 import useLocationParams from '../../lib/location-param-hook';
-import DwdWeatherVisualizer from '../shared/dwd-weather-visualizer';
-import { WeatherCategory } from '../../lib/products/Description';
+import DwdWeatherVisualizer, { DwdWeatherVisualizerProps } from '../shared/dwd-weather-visualizer';
+import { WeatherCategory, WeatherDescriptionResult } from '../../lib/products/Description';
+import { calculateSolarEvents } from '../../lib/solar-events';
 
 const LandingPage = () => {
     const { location, setLocation } = useLocationParams();
@@ -42,11 +43,26 @@ const LandingPage = () => {
         navigate(url);
     }
 
+    let visualizer: DwdWeatherVisualizerProps | undefined;
+    if(data){
+        const now = new Date();
+        const forDate = data.results.map(x => x.getForDate(now));
+        const descriptionsForDate = forDate.filter(x => x.product == "Weather Description")[0] as WeatherDescriptionResult;
+        const descriptionsForNow = descriptionsForDate.getForTime(now);
+        const solarEvents = calculateSolarEvents({longitude: data.station.longitude, latitude: data.station.latitude}, now);
+        visualizer = {
+            referenceTime: now,
+            solarEvents: solarEvents,
+            categories: descriptionsForNow != null ? [descriptionsForNow?.category] : []
+        }        
+    }
+
+
     if (loading) return <p>Loading ...</p>
     if (error) return <p>Error: {error}</p>
 
     return (        
-        <DwdPageLayout title='Weather'>        
+        <DwdPageLayout title='Weather' visualizer={visualizer}>        
             <div className={styles["page-layout"]}>
                 {
                     data == null

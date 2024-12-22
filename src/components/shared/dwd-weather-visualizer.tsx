@@ -3,8 +3,9 @@ import { PropsWithChildren } from "react";
 import { WeatherCategory } from "../../lib/products/Description";
 import { SolarEvents } from '../../lib/solar-events';
 
-type DwdWeatherVisualizerProps = {
-    categories: WeatherCategory[]
+export type DwdWeatherVisualizerProps = {
+    referenceTime: Date,
+    categories: WeatherCategory[]    
     solarEvents?: SolarEvents
 }
 
@@ -18,10 +19,11 @@ const DwdWeatherVisualizer = (props: PropsWithChildren<DwdWeatherVisualizerProps
 
     const classes = ["weather-visualizer"];
     props.categories?.forEach(x => {
-        classes.push(WeatherCategory[x].toLowerCase()+"-bg")
+        let cat = x.toString().toLowerCase() + "-bg"   
+        classes.push(cat)
     });  
     
-    let partOfDay = GetPartOfDay(new Date(), props.solarEvents)
+    let partOfDay = GetPartOfDay(props.referenceTime, props.solarEvents)
     let partOfDayClass = PartOfDay[partOfDay].toLocaleLowerCase() + "-time";
     return (
         <div className={classes.map(x => styles[x]).join(' ')}>            

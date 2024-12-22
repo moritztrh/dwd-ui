@@ -1,15 +1,22 @@
-import { ReactNode, PropsWithChildren } from 'react';
+import { PropsWithChildren } from 'react';
 import styles from './dwd-page-layout.module.css';
-import DwdWeatherVisualizer from './dwd-weather-visualizer';
+import DwdWeatherVisualizer, { DwdWeatherVisualizerProps } from './dwd-weather-visualizer';
 import { WeatherCategory } from '../../lib/products/Description';
 
 type DwdPageLayoutProps = {
     title: string
+    visualizer?: DwdWeatherVisualizerProps
 }
 
 const DwdPageLayout = (props: PropsWithChildren<DwdPageLayoutProps>) => {
+    
+    const visualizerProps: DwdWeatherVisualizerProps = props.visualizer ?? {
+        referenceTime: new Date(),
+        categories: [WeatherCategory.Clear],        
+    }
+    
     return (
-        <DwdWeatherVisualizer categories={[WeatherCategory.Clear, WeatherCategory.Rain]}>
+        <DwdWeatherVisualizer {...visualizerProps}>
             <div className={styles["page-container"]}>
                 {props.children}
             </div>

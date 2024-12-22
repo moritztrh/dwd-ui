@@ -33,6 +33,15 @@ export class WeatherDescriptionResult implements ProductResult {
         return new WeatherDescriptionResult(dailyValues);
     }
 
+    getForTime(date: Date) : WeatherDescription | null {
+       for(let i=0; i<this.values.length-1; i++){
+        let cursor = this.values[i];
+        if (cursor.time > date) continue;
+        return cursor;
+       }
+       return null;
+    }
+
     setStats(){
         var countMap = new Map<WeatherCategory, number>();
         this.values.forEach(x => {
