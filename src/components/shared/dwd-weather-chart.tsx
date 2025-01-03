@@ -2,19 +2,23 @@ import styles from './dwd-weather-chart.module.css';
 import { AirTemperature, AirTemperatureResult } from "../../lib/products/AirTemperature";
 import { WeatherCategory, WeatherDescription, WeatherDescriptionResult } from '../../lib/products/Description';
 import { ValueType } from '../../lib/api-types';
-import { LinePath } from "@visx/shape";
+import { Bar, Line, LinePath } from "@visx/shape";
 import { scaleLinear, scaleTime } from "@visx/scale";
 import { AxisBottom, AxisLeft, TickFormatter } from "@visx/axis";
 import { GridColumns, GridRows } from '@visx/grid';
 import { Text } from '@visx/text';
 import { SolarEvents } from '../../lib/solar-events';
 import { ScaleSVG, useParentSize } from '@visx/responsive';
-
+import { useCallback, useMemo } from 'react';
+import { Tooltip, useTooltip, defaultStyles } from '@visx/tooltip';
+import { localPoint } from '@visx/event';
+import { AddHours, GetStartOfDay, GetStartOfHour } from '../../lib/date-time';
 
 export type DwdTemperatureChartProps = {
     temperature: AirTemperatureResult | null;
     descriptions: WeatherDescriptionResult | null;
     solarEvents: SolarEvents | null;
+    onHover?: (time: Date) => void
 }
 
 type ValueCollections<T> = {
@@ -22,39 +26,43 @@ type ValueCollections<T> = {
     forecasts: T[];
 }
 
-const DwdWeatherChart = (props: DwdTemperatureChartProps) => {
+const DwdWeatherChart = (props: DwdTemperatureChartProps) => {          
     const {parentRef, width, height} = useParentSize({ debounceTime: 150, enableDebounceLeadingCall: true })
-    if (!props?.temperature) return <div>No Data</div>
-
-    const margin = { top: 75, right: 50, bottom: 75, left: 50 };
-    const innerWidth = width - margin.left - margin.right;
-    const innerHeight = height - margin.top - margin.bottom;
-
-    const xScale = scaleTime<number>({
-        domain: [props.temperature.values[0].time, props.temperature.values[props.temperature.values.length - 1].time],
-        range: [0, innerWidth]
-    });
-
-    const getXPosition = (d: Date) => xScale(d);
-
-    const min = (props.temperature.min?.temperature ?? 0);
-    const max = (props.temperature.max?.temperature ?? 0);
-    const room = (max - min) * 0.05;
-
-    const yScale = scaleLinear<number>({
-        range: [innerHeight, 0],
-        domain: [min - room, max + room],
-        nice: true
-    });
-
-
-    const formatDate: TickFormatter<Date | any> = (date: Date): string => {
-        if (date.getHours() == 0) return date.toLocaleDateString();
-        return date.toLocaleTimeString();
-    }
-
-    const airTempData = getTemperature(props.temperature);
-    const descriptions = getDescriptions(props.descriptions);
+    const {showTooltip, hideTooltip, tooltipData, tooltipLeft, tooltipTop} = useTooltip<{date: Date, temperature: number}>()
+    
+    const startOfHour = GetStartOfHour(new Date());
+    const scaleValues = useMemo(
+        () => getScaleValues(props.temperature, startOfHour), 
+        [props.temperature, startOfHour]
+    );
+    const dimensions = useMemo(
+        () => getDimensions(width, height),
+        [width, height]
+    ) ;
+    
+    const xScale = useMemo(() => scaleTime<number>({
+        domain: [scaleValues.minTime, scaleValues.maxTime],
+        range: [0, dimensions.innerWidth]
+    }), 
+    [scaleValues, dimensions]);
+        
+    const yScale = useMemo(() => {
+        const room = (scaleValues.maxTemp - scaleValues.minTemp) * 0.05;
+            return scaleLinear<number>({
+                range: [dimensions.innerHeight, 0],
+                domain: [scaleValues.minTemp - room, scaleValues.maxTemp + room],
+                nice: true
+            });
+        }, 
+    [dimensions, scaleValues]) ;
+    
+    const airTempData = useMemo(
+        () => getTemperature(props.temperature),
+        [props.temperature]
+    );
+    const descriptions = useMemo(() => getDescriptions(props.descriptions),
+        [props.descriptions]
+    );
 
     const dawnX = xScale(props.solarEvents?.dawn!)
     const sunriseX = xScale(props.solarEvents?.sunrise!)
@@ -62,31 +70,72 @@ const DwdWeatherChart = (props: DwdTemperatureChartProps) => {
     const sunsetX = xScale(props.solarEvents?.sunset!)
     const duskX = xScale(props.solarEvents?.dusk!)
 
+    const handleTooltip = useCallback((event: React.TouchEvent<SVGRectElement> | React.MouseEvent<SVGRectElement>) => {                
+        const { x } = localPoint(event) || { x: 0 }    
+        const date = xScale.invert(x - dimensions.margins.left);
+        
+        let lower: AirTemperature = props.temperature!.values[0];
+        let upper: AirTemperature = props.temperature!.values[1];
+        
+        for(let i=0; i<props.temperature!.values.length; i++){
+            let value = props.temperature!.values[i];            
+            if(value.time < date) continue;
+            
+            lower = props.temperature!.values[i-1];
+            upper = props.temperature!.values[i];
+            
+            if(lower.temperature && upper.temperature) break;            
+        }
+        
+        // y = mx + n     
+        const deltaY = yScale(upper.temperature!) - yScale(lower.temperature!);
+        const deltaX = xScale(upper.time) - xScale(lower.time);
+        const m = deltaY / deltaX;            
+        const n = yScale(upper.temperature!) - xScale(upper.time) * m;               
+        const temperature = yScale.invert(xScale(date) * m + n);
+        
+        showTooltip({
+            tooltipData: {
+                date: date,
+                temperature: temperature
+            },
+            tooltipLeft: x - dimensions.margins.left,   
+            tooltipTop: yScale(temperature)
+        });
+        if(props?.onHover) props.onHover(date);
+    },
+    [showTooltip, xScale, yScale]);
+
+    const formatDate: TickFormatter<Date | any> = (date: Date): string => {
+        if (date.getHours() == 0) return date.toLocaleDateString();
+        return date.toLocaleTimeString();
+    }
+
     return (
         <div ref={parentRef} className={styles["chart-container"]}>
-            <ScaleSVG width={width} height={height}>
-                <g transform={`translate(${margin.left}, ${margin.top})`}>
+            <ScaleSVG key={1} width={width} height={height}>
+                <g transform={`translate(${dimensions.margins.left}, ${dimensions.margins.top})`}>
                     <rect className={styles["early-morning"]}
                         x={0}
                         width={dawnX}
-                        height={innerHeight} />
+                        height={dimensions.innerHeight} />
                     <rect className={styles["sunrise"]}
                         x={dawnX}
                         width={sunriseX - dawnX}
-                        height={innerHeight} />
+                        height={dimensions.innerHeight} />
                     <rect className={styles["sunset"]}
                         x={sunsetX}
                         width={duskX - sunsetX}
-                        height={innerHeight} />
+                        height={dimensions.innerHeight} />
                     <rect className={styles["night"]}
                         x={duskX}
-                        width={innerWidth - duskX}
-                        height={innerHeight} />
+                        width={dimensions.innerWidth - duskX}
+                        height={dimensions.innerHeight} />
 
-                    <GridRows scale={yScale} width={innerWidth} stroke='rgba(255, 255, 255, 0.33)' />
+                    <GridRows scale={yScale} width={dimensions.innerWidth} stroke='rgba(255, 255, 255, 0.33)' />
                     {descriptions.measurements.filter((x, i) => i % 2 == 0).map(x => {
                         return (
-                            <Text x={getXPosition(x.time)}
+                            <Text x={xScale(x.time)}
                                   angle={-45}
                                   fill='white'>
                                     {WeatherCategory[x.category]}
@@ -95,7 +144,7 @@ const DwdWeatherChart = (props: DwdTemperatureChartProps) => {
                     })}
                     {descriptions.forecasts.filter((x, i) => i % 2 != 0).map(x => {
                         return (
-                            <Text x={getXPosition(x.time)}
+                            <Text x={xScale(x.time)}
                                   angle={-45}
                                   fill='white'>
                                     {WeatherCategory[x.category]}
@@ -121,16 +170,103 @@ const DwdWeatherChart = (props: DwdTemperatureChartProps) => {
                         numTicks={5}                        
                         label='Temperature'/>
                     <AxisBottom
-                        top={innerHeight}
+                        top={dimensions.innerHeight}
                         scale={xScale}
                         numTicks={10}                        
                         tickFormat={formatDate} />
-
+                    <Bar 
+                        x={0}
+                        y={0}
+                        width={dimensions.innerWidth}
+                        height={dimensions.innerHeight}                        
+                        fill='transparent'
+                        onTouchStart={handleTooltip}
+                        onTouchMove={handleTooltip}                        
+                        onMouseMove={handleTooltip}                                   
+                        onMouseLeave={() => hideTooltip()} />
+                        {tooltipData && (
+                            <g>
+                                <Line 
+                                    from={{x: tooltipLeft, y: 0}}
+                                    to={{x: tooltipLeft, y: dimensions.innerHeight}}
+                                    stroke='black'
+                                    strokeWidth={2}
+                                    pointerEvents='none'/>  
+                                <circle 
+                                    cx={tooltipLeft}
+                                    cy={tooltipTop}
+                                    r={4}
+                                    fill='black'
+                                    strokeWidth={2} />      
+                                <Text
+                                    x={tooltipLeft! + 12}
+                                    y={tooltipTop! + 6}>
+                                    {Math.round(tooltipData.temperature*100)/100}
+                                </Text>                                                                                                                                                    
+                            </g>                                
+                        )}       
                 </g>
             </ScaleSVG>
+            {tooltipData && (
+                <div>
+                    <Tooltip 
+                        key={Math.random()}
+                        top={height+dimensions.margins.top*2}
+                        left={tooltipLeft!-12}
+                        style={{
+                            ...defaultStyles,
+                            border: '1px solid black',
+                            textAlign: 'center',
+                            transform: 'translateX(50%)'
+                        }}>
+                        {tooltipData.date.toLocaleTimeString()}
+                    </Tooltip>
+                </div>
+            )}
         </div >
     )
 };
+
+function getScaleValues(temperature: AirTemperatureResult | null, reference: Date) : {minTime: Date, maxTime: Date, minTemp: number, maxTemp: number} {    
+    if(!temperature){
+        return {
+            minTime: GetStartOfDay(reference),
+            maxTime: AddHours(GetStartOfDay(reference), 24),
+            minTemp: 0,
+            maxTemp: 25
+        }
+    }    
+    return {
+        minTime: temperature.values[0].time,
+        maxTime: temperature.values[temperature.values.length - 1].time,
+        minTemp: temperature.min?.temperature ?? 0,
+        maxTemp: temperature.max?.temperature ?? 0,
+    }
+}
+
+function getDimensions(width: number, height: number) : { margins: {top: number, bottom: number, left: number, right: number}, innerHeight: number, innerWidth: number } {
+    const marginVertical = 75;
+    const marginHorizontal = 50;
+
+    const useMarginVertical = height - marginVertical * 2 > 0;
+    const useMarginHorizontal = width - marginHorizontal * 2 > 0;
+
+    const margins = { 
+        top: useMarginVertical ? marginVertical : 0, 
+        bottom: useMarginVertical ? marginVertical : 0, 
+        right: useMarginHorizontal ? marginHorizontal : 0,
+        left: useMarginHorizontal ? marginHorizontal : 0
+    };
+ 
+    const innerWidth = width - margins.left - margins.right
+    const innerHeight = height - margins.top - margins.bottom;
+
+    return {
+        margins,
+        innerHeight,
+        innerWidth
+    }
+}
 
 function getTemperature(data: AirTemperatureResult | null): ValueCollections<AirTemperature> {
     let measurements: AirTemperature[] = [];

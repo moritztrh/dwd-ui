@@ -9,6 +9,12 @@ export function GetStartOfDay(date: Date) : Date {
     return result;
 }
 
+export function GetStartOfHour(date: Date): Date {
+    let result = new Date(date.getTime());
+    result.setMinutes(0, 0, 0);
+    return result;
+}
+
 export function AddHours(date: Date, hours: number): Date {
     var result = new Date();
     result.setTime(date.getTime() + (hours*60*60*1000));
