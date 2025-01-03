@@ -80,8 +80,8 @@ const DwdWeatherChart = (props: DwdTemperatureChartProps) => {
         for(let i=0; i<props.temperature!.values.length; i++){
             let value = props.temperature!.values[i];            
             if(value.time < date) continue;
-            
-            lower = props.temperature!.values[i-1];
+                        
+            lower = props.temperature!.values[i > 0 ? i - 1 : 0];
             upper = props.temperature!.values[i];
             
             if(lower.temperature && upper.temperature) break;            
