@@ -2,17 +2,23 @@ import styles from './details-page.module.css'
 import { useSearchParams } from "react-router-dom";
 import useLocationParams from "../../lib/location-param-hook";
 import useWeather, { useWeatherMock } from "../../lib/weather-hook";
-import { AddHours } from "../../lib/date-time";
+import { AddHours, GetStartOfHour } from "../../lib/date-time";
 import { useEffect, useState } from "react";
 import DwdWeatherChart from "../shared/dwd-weather-chart";
 import { AirTemperatureResult } from "../../lib/products/AirTemperature";
-import { WeatherDescriptionResult } from "../../lib/products/Description";
+import { WeatherCategory, WeatherDescriptionResult } from "../../lib/products/Description";
 import { SolarEvents, calculateSolarEvents } from "../../lib/solar-events";
 import DwdPageLayout from "../shared/dwd-page-layout";
 import StationOverview from '../shared/station-overview';
+import { DwdWeatherVisualizerProps } from '../shared/dwd-weather-visualizer';
 
 const DetailsPage = () => {
     const [date, setDate] = useState<Date | null>();
+    const [visualizerProps, setVisualizerProps] = useState<DwdWeatherVisualizerProps>({
+        referenceTime: new Date(),
+        categories: [WeatherCategory.Clear],
+        solarEvents: undefined
+    });
     const { location } = useLocationParams();
     const [searchParams] = useSearchParams()
 
@@ -42,9 +48,17 @@ const DetailsPage = () => {
     if (!data) return <p></p>;
 
     const airTemp = data.results.filter(x => x instanceof AirTemperatureResult)[0] as AirTemperatureResult;
-    const descriptions = data.results.filter(x => x instanceof WeatherDescriptionResult)[0] as WeatherDescriptionResult;
+    const descriptions = data.results.filter(x => x instanceof WeatherDescriptionResult)[0] as WeatherDescriptionResult;    
+    const handleHover = (time: Date) => {        
+        const category = descriptions.getForTime(time)?.category ?? WeatherCategory.Clear;             
+        setVisualizerProps({
+            referenceTime: time,             
+            solarEvents: solarEvents,            
+            categories: [category]})
+    }
+
     return (
-        <DwdPageLayout title="Weather">
+        <DwdPageLayout title="Weather" visualizer={visualizerProps}>
             <div className={styles["meta"]}>
                 <StationOverview station={data.station}
                                  distance={data.distance} />
@@ -53,7 +67,8 @@ const DetailsPage = () => {
             <div className={styles["chart-container"]}>             
                 <DwdWeatherChart temperature={airTemp}
                                  descriptions={descriptions}
-                                 solarEvents={solarEvents}/>
+                                 solarEvents={solarEvents}
+                                 onHover={handleHover}/>
             </div>
         </DwdPageLayout>)
 

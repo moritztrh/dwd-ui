@@ -36,7 +36,7 @@ export class WeatherDescriptionResult implements ProductResult {
     getForTime(date: Date) : WeatherDescription | null {
        for(let i=0; i<this.values.length-1; i++){
         let cursor = this.values[i];
-        if (cursor.time > date) continue;
+        if (cursor.time < date) continue;        
         return cursor;
        }
        return null;
