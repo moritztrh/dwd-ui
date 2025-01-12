@@ -70,7 +70,7 @@ const DwdWeatherChart = (props: DwdTemperatureChartProps) => {
     const sunsetX = xScale(props.solarEvents?.sunset!)
     const duskX = xScale(props.solarEvents?.dusk!)
 
-    const handleTooltip = useCallback((event: React.TouchEvent<SVGRectElement> | React.MouseEvent<SVGRectElement>) => {                
+    const handleShowTooltip = useCallback((event: React.TouchEvent<SVGRectElement> | React.MouseEvent<SVGRectElement>) => {                
         const { x } = localPoint(event) || { x: 0 }    
         const date = xScale.invert(x - dimensions.margins.left);
       
@@ -98,6 +98,11 @@ const DwdWeatherChart = (props: DwdTemperatureChartProps) => {
         if(props?.onHover) props.onHover(date);
     },
     [showTooltip, xScale, yScale]);
+
+    const handleHideTooltip = () => {        
+        hideTooltip();
+        if(props?.onHover) props.onHover(new Date());
+    }
 
     const formatDate: TickFormatter<Date | any> = (date: Date): string => {
         if (date.getHours() == 0) return date.toLocaleDateString();
@@ -173,10 +178,10 @@ const DwdWeatherChart = (props: DwdTemperatureChartProps) => {
                         width={dimensions.innerWidth}
                         height={dimensions.innerHeight}                        
                         fill='transparent'
-                        onTouchStart={handleTooltip}
-                        onTouchMove={handleTooltip}                        
-                        onMouseMove={handleTooltip}                                   
-                        onMouseLeave={() => hideTooltip()} />
+                        onTouchStart={handleShowTooltip}
+                        onTouchMove={handleShowTooltip}                        
+                        onMouseMove={handleShowTooltip}                                   
+                        onMouseLeave={handleHideTooltip} />
                         {tooltipData && (
                             <g>
                                 <Text
