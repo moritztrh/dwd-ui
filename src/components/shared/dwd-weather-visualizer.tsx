@@ -34,9 +34,7 @@ const DwdWeatherVisualizer = (props: PropsWithChildren<DwdWeatherVisualizerProps
         let cssClass = cat.toLowerCase() + "-bg";                
         classes[styles[cssClass]] = true;         
     });  
-    
-    console.log(props.categories);
-
+        
     const combinedClasses = classNames(classes);
 
     let partOfDay = GetPartOfDay(props.referenceTime, props.solarEvents)    

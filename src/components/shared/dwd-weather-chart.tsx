@@ -1,7 +1,7 @@
 import styles from './dwd-weather-chart.module.css';
 import { AirTemperature, AirTemperatureResult } from "../../lib/products/AirTemperature";
 import { WeatherCategory, WeatherDescription, WeatherDescriptionResult } from '../../lib/products/Description';
-import { ValueType } from '../../lib/api-types';
+import { TimeSeriesValue, ValueType } from '../../lib/api-types';
 import { Bar, Line, LinePath } from "@visx/shape";
 import { scaleLinear, scaleTime } from "@visx/scale";
 import { AxisBottom, AxisLeft, TickFormatter } from "@visx/axis";
@@ -28,7 +28,7 @@ type ValueCollections<T> = {
 
 const DwdWeatherChart = (props: DwdTemperatureChartProps) => {          
     const {parentRef, width, height} = useParentSize({ debounceTime: 150, enableDebounceLeadingCall: true })
-    const {showTooltip, hideTooltip, tooltipData, tooltipLeft, tooltipTop} = useTooltip<{date: Date, temperature: number}>()
+    const {showTooltip, hideTooltip, tooltipData, tooltipLeft, tooltipTop} = useTooltip<{date: Date, temperature: number, description: string}>()
     
     const startOfHour = GetStartOfHour(new Date());
     const scaleValues = useMemo(
@@ -73,34 +73,27 @@ const DwdWeatherChart = (props: DwdTemperatureChartProps) => {
     const handleTooltip = useCallback((event: React.TouchEvent<SVGRectElement> | React.MouseEvent<SVGRectElement>) => {                
         const { x } = localPoint(event) || { x: 0 }    
         const date = xScale.invert(x - dimensions.margins.left);
-        
-        let lower: AirTemperature = props.temperature!.values[0];
-        let upper: AirTemperature = props.temperature!.values[1];
-        
-        for(let i=0; i<props.temperature!.values.length; i++){
-            let value = props.temperature!.values[i];            
-            if(value.time < date) continue;
-                        
-            lower = props.temperature!.values[i > 0 ? i - 1 : 0];
-            upper = props.temperature!.values[i];
-            
-            if(lower.temperature && upper.temperature) break;            
-        }
-        
-        // y = mx + n     
-        const deltaY = yScale(upper.temperature!) - yScale(lower.temperature!);
-        const deltaX = xScale(upper.time) - xScale(lower.time);
+      
+        const temperaturePair = getLowerAndUpperValue(props.temperature!.values!, date);                        
+        const deltaY = yScale(temperaturePair.upper.temperature!) - yScale(temperaturePair.lower.temperature!);
+        const deltaX = xScale(temperaturePair.upper.time) - xScale(temperaturePair.lower.time);
         const m = deltaY / deltaX;            
-        const n = yScale(upper.temperature!) - xScale(upper.time) * m;               
-        const temperature = yScale.invert(xScale(date) * m + n);
-        
+        const n = yScale(temperaturePair.upper.temperature!) - xScale(temperaturePair.upper.time) * m;               
+        const temperatureAtPoint = yScale.invert(xScale(date) * m + n);
+                
+        const descriptionPair = getLowerAndUpperValue(props.descriptions!.values!, date);
+        const descriptionAtPoint = date.getTime() - descriptionPair.lower.time.getTime() < descriptionPair.upper.time.getTime() - date.getTime() 
+            ? descriptionPair.lower.category 
+            : descriptionPair.upper.category;
+
         showTooltip({
             tooltipData: {
                 date: date,
-                temperature: temperature
+                temperature: temperatureAtPoint,
+                description: WeatherCategory[descriptionAtPoint]
             },
             tooltipLeft: x - dimensions.margins.left,   
-            tooltipTop: yScale(temperature)
+            tooltipTop: yScale(temperatureAtPoint)
         });
         if(props?.onHover) props.onHover(date);
     },
@@ -186,6 +179,12 @@ const DwdWeatherChart = (props: DwdTemperatureChartProps) => {
                         onMouseLeave={() => hideTooltip()} />
                         {tooltipData && (
                             <g>
+                                <Text
+                                    x={tooltipLeft! + 12}
+                                    y={tooltipTop! - 12}
+                                >
+                                    {tooltipData.description}
+                                </Text>
                                 <Line 
                                     from={{x: tooltipLeft, y: 0}}
                                     to={{x: tooltipLeft, y: dimensions.innerHeight}}
@@ -201,7 +200,7 @@ const DwdWeatherChart = (props: DwdTemperatureChartProps) => {
                                 <Text
                                     x={tooltipLeft! + 12}
                                     y={tooltipTop! + 6}>
-                                    {Math.round(tooltipData.temperature*100)/100}
+                                    {(Math.round(tooltipData.temperature*100)/100)+"°C"}
                                 </Text>                                                                                                                                                    
                             </g>                                
                         )}       
@@ -302,6 +301,27 @@ function getDescriptions(data: WeatherDescriptionResult | null): ValueCollection
     });
 
     return { measurements, forecasts };
+}
+
+function getLowerAndUpperValue<T extends TimeSeriesValue>(data: T[], date: Date) : {lower: T, upper: T} {
+    let lower: T = data[0];
+    let upper: T = data[1];
+    
+    for(let i=0; i<data.length; i++){
+        let value = data[i];            
+        if(value.time < date) continue;
+                    
+        lower = data[i > 0 ? i - 1 : 0];
+        upper = data[i];
+        break;              
+    }
+
+    const result = {
+        lower, 
+        upper
+    }
+
+    return result;
 }
 
 export default DwdWeatherChart;
