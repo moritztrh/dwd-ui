@@ -1,13 +1,13 @@
-.clear-bg {
-    background: linear-gradient(180deg, rgba(0,140,230,1) 0%, rgba(0,190,230,1) 100%);
+.clear-bg {    
+    background: linear-gradient(180deg, rgba(0,140,230,1) 0%, rgba(0,190,230,1) 100%);        
 }
 
-.cloudy-bg {
-    background: linear-gradient(180deg, rgb(138, 156, 156) 0%, rgb(99, 112, 114) 100%);
+.cloudy-bg {    
+    background: linear-gradient(180deg, rgb(138, 156, 156) 0%, rgb(99, 112, 114) 100%);    
 }
 
 .fog-bg {
-    background: linear-gradient(180deg, rgb(174, 200, 201) 0%, rgb(128, 147, 151) 100%);
+    background: linear-gradient(180deg, rgb(174, 200, 201) 0%, rgb(128, 147, 151) 100%);    
 }
 
 .rain-bg {
@@ -22,14 +22,26 @@
     background: linear-gradient(180deg, rgb(174, 200, 201) 0%, rgb(128, 147, 151) 100%);
 }
 
+@property --day-overlay {
+    syntax: '<color>';
+    initial-value: rgba(0, 0, 0, 0);
+    inherits: false;
+}
+
+.part-of-day {
+    background-color: var(--day-overlay);
+    transition: background-color 500ms linear;
+    border: 1px solid green;
+}
+
 .day-time {
-    background: rgba(0, 0, 0, 0);
+    --day-overlay: rgba(0, 0, 0, 0);    
 }
 
 .night-time {
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.75) 100%);
+    --day-overlay: rgba(0, 0, 0, 0.25);       
 }
 
 .twilight-time {
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.50) 100%);
+    --day-overlay: rgba(0, 0, 0, 0.1);    
 }

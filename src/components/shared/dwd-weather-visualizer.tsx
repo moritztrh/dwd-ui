@@ -17,11 +17,11 @@ enum PartOfDay {
 }
 
 const DwdWeatherVisualizer = (props: PropsWithChildren<DwdWeatherVisualizerProps>) => {
-    let classes : {
+    let categoryClasses : {
         [key: string]: boolean
-    } = {
-        'dwd-weather-visualizer': true
+    } = {        
     };
+
     props.categories?.forEach(x => { 
         let cat: string;
         if(typeof x === 'number' && WeatherCategory[x]){
@@ -32,16 +32,23 @@ const DwdWeatherVisualizer = (props: PropsWithChildren<DwdWeatherVisualizerProps
             cat = WeatherCategory.Unknown.toString();
         }        
         let cssClass = cat.toLowerCase() + "-bg";                
-        classes[styles[cssClass]] = true;         
+        categoryClasses[styles[cssClass]] = true;         
     });  
-            
-    const combinedClasses = classNames(classes);
+    const combinedCategoryClasses = classNames(categoryClasses);
 
-    let partOfDay = GetPartOfDay(props.referenceTime, props.solarEvents)        
-    let partOfDayClass = PartOfDay[partOfDay].toLocaleLowerCase() + "-time";
+    const partOfDayClasses : {
+        [key: string]: boolean
+    } = {
+    }
+    const partOfDay = GetPartOfDay(props.referenceTime, props.solarEvents)        
+    const partOfDayClass = PartOfDay[partOfDay].toLocaleLowerCase() + "-time";
+    partOfDayClasses[styles['part-of-day']] = true;
+    partOfDayClasses[styles[partOfDayClass]] = true;
+    const combinedPartOfDayClasses = classNames(partOfDayClasses);
+
     return (
-        <div className={combinedClasses}>            
-            <div className={styles[partOfDayClass]}>                
+        <div className={combinedCategoryClasses}>            
+            <div className={combinedPartOfDayClasses}>                
                 {props.children}
             </div>                        
         </div>
