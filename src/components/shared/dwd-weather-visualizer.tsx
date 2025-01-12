@@ -34,10 +34,10 @@ const DwdWeatherVisualizer = (props: PropsWithChildren<DwdWeatherVisualizerProps
         let cssClass = cat.toLowerCase() + "-bg";                
         classes[styles[cssClass]] = true;         
     });  
-        
+            
     const combinedClasses = classNames(classes);
 
-    let partOfDay = GetPartOfDay(props.referenceTime, props.solarEvents)    
+    let partOfDay = GetPartOfDay(props.referenceTime, props.solarEvents)        
     let partOfDayClass = PartOfDay[partOfDay].toLocaleLowerCase() + "-time";
     return (
         <div className={combinedClasses}>            

@@ -25,7 +25,6 @@ const DetailsPage = () => {
     const { data, loading, error, triggerWeather } = useWeather();
     const [solarEvents, setSolarEvents] = useState<SolarEvents | null>(null);
 
-
     useEffect(() => {
         const rawDate = searchParams.get("date");
         setDate(rawDate ? new Date(rawDate) : null);
@@ -41,6 +40,14 @@ const DetailsPage = () => {
         const coordinates = { longitude: data.station.longitude, latitude: data.station.latitude }
         const events = calculateSolarEvents(coordinates, date);
         setSolarEvents(events);
+
+        const now = new Date();
+        const category = descriptions.getForTime(now)?.category ?? WeatherCategory.Clear;             
+        setVisualizerProps({
+            referenceTime: now,             
+            solarEvents: solarEvents,            
+            categories: [category]})
+                        
     }, [data])
 
     if (loading) return <p>Loading ...</p>
@@ -49,6 +56,7 @@ const DetailsPage = () => {
 
     const airTemp = data.results.filter(x => x instanceof AirTemperatureResult)[0] as AirTemperatureResult;
     const descriptions = data.results.filter(x => x instanceof WeatherDescriptionResult)[0] as WeatherDescriptionResult;    
+        
     const handleHover = (time: Date) => {        
         const category = descriptions.getForTime(time)?.category ?? WeatherCategory.Clear;             
         setVisualizerProps({
@@ -56,7 +64,7 @@ const DetailsPage = () => {
             solarEvents: solarEvents,            
             categories: [category]})
     }
-
+    
     return (
         <DwdPageLayout title="Weather" visualizer={visualizerProps}>
             <div className={styles["meta"]}>
