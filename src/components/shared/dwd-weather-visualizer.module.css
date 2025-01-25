@@ -1,25 +1,7 @@
-.clear-bg {    
-    background: linear-gradient(180deg, rgba(0,140,230,1) 0%, rgba(0,190,230,1) 100%);        
-}
-
-.cloudy-bg {    
-    background: linear-gradient(180deg, rgb(138, 156, 156) 0%, rgb(99, 112, 114) 100%);    
-}
-
-.fog-bg {
-    background: linear-gradient(180deg, rgb(174, 200, 201) 0%, rgb(128, 147, 151) 100%);    
-}
-
-.rain-bg {
-    background: linear-gradient(180deg, rgb(134, 147, 163) 0%, rgb(87, 102, 105) 100%);
-}
-
-.snow-bg {
-    background: linear-gradient(180deg, rgb(174, 200, 201) 0%, rgb(128, 147, 151) 100%);
-}
-
-.thunder-bg {
-    background: linear-gradient(180deg, rgb(174, 200, 201) 0%, rgb(128, 147, 151) 100%);
+.weather-visualization {
+    position: absolute;
+    top:0;
+    z-index: -1;
 }
 
 @property --day-overlay {
@@ -30,8 +12,7 @@
 
 .part-of-day {
     background-color: var(--day-overlay);
-    transition: background-color 500ms linear;
-    border: 1px solid green;
+    transition: background-color 500ms linear;    
 }
 
 .day-time {

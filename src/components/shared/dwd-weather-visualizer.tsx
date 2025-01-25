@@ -3,6 +3,7 @@ import { PropsWithChildren } from "react";
 import { WeatherCategory } from "../../lib/products/Description";
 import { SolarEvents } from '../../lib/solar-events';
 import classNames from 'classnames';
+import DwdFogVisual from './dwd-fog-visual';
 
 export type DwdWeatherVisualizerProps = {
     referenceTime: Date,
@@ -16,26 +17,7 @@ enum PartOfDay {
     Twilight
 }
 
-const DwdWeatherVisualizer = (props: PropsWithChildren<DwdWeatherVisualizerProps>) => {
-    let categoryClasses : {
-        [key: string]: boolean
-    } = {        
-    };
-
-    props.categories?.forEach(x => { 
-        let cat: string;
-        if(typeof x === 'number' && WeatherCategory[x]){
-            cat = WeatherCategory[x];
-        } else if(typeof x === 'string' && Object.values(WeatherCategory).includes(x)){
-            cat = x;
-        } else {
-            cat = WeatherCategory.Unknown.toString();
-        }        
-        let cssClass = cat.toLowerCase() + "-bg";                
-        categoryClasses[styles[cssClass]] = true;         
-    });  
-    const combinedCategoryClasses = classNames(categoryClasses);
-
+const DwdWeatherVisualizer = (props: PropsWithChildren<DwdWeatherVisualizerProps>) => {  
     const partOfDayClasses : {
         [key: string]: boolean
     } = {
@@ -45,12 +27,24 @@ const DwdWeatherVisualizer = (props: PropsWithChildren<DwdWeatherVisualizerProps
     partOfDayClasses[styles['part-of-day']] = true;
     partOfDayClasses[styles[partOfDayClass]] = true;
     const combinedPartOfDayClasses = classNames(partOfDayClasses);
-
+        
+    const showFog = props.categories.indexOf(WeatherCategory.Fog) != -1;
+    
     return (
-        <div className={combinedCategoryClasses}>            
+        <div className={styles['weather-visualizer']}>      
             <div className={combinedPartOfDayClasses}>                
                 {props.children}
-            </div>                        
+            </div>      
+            {showFog && (
+                <div className={styles['weather-visualization']}>
+                    <DwdFogVisual />
+                </div>
+            )}    
+            {props.categories.indexOf(WeatherCategory.Cloudy) != -1 && (
+                <div className={styles['weather-visualization']}>
+                    <h1>Cloudy</h1>
+                </div>
+            )}                     
         </div>
     )
 }
