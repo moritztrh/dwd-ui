@@ -5,6 +5,7 @@ import { DailyProductResult } from "./data";
 import TemperatureStats from "./temperature-stats";
 import { calculateSolarEvents } from "../../../lib/solar-events";
 import { Coordinates, Station } from "../../../lib/api-types";
+import DwdWeatherCategoryIcon, { WeatherIconSize } from "../../shared/dwd-weather-category-icon";
 
 export type DailyOverViewProps = {
     coordinates: Coordinates;
@@ -21,8 +22,8 @@ const DailyOverView = (props: DailyOverViewProps) => {
         <div className={styles["daily-overview"]}
              onClick={(_) => props.onDaySelect(props.data.date)}>
             <div>{getDateDescription(props.data.date)}</div>
-            <div>{relevantCategories.join(", ")}</div>
-            <div>
+            <div className={styles["category-icons"]}>{relevantCategories.map(c => <DwdWeatherCategoryIcon size={WeatherIconSize.Small} category={c}/>)}</div>            
+            <div>                
                 <TemperatureStats min={temperature.min}
                                   max={temperature.max}
                                   avg={temperature.avg}/>

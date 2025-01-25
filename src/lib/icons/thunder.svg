@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<svg width="100%" height="100%" viewBox="0 0 38 38" version="1.1"
+    style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:square;stroke-miterlimit:1.5;">
+    <g id="Thunder">
+        <use id="Thunder1"  x="0" y="0" width="38px"
+            height="26px" />
+        <path
+            d="M16.461,29.847l-2.922,-0l1.842,-11.024l5.949,0l-1.297,6.126l3.628,-0l-7.2,12.251l-0,-7.353Z"
+            style="fill:#fff;" />
+    </g>
+</svg>

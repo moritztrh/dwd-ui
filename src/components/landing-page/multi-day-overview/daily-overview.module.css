@@ -16,3 +16,8 @@
 .daily-overview > div:last-child {
     justify-items: end;
 }
+
+.category-icons {
+    display: flex;    
+    gap: 0.25rem
+}

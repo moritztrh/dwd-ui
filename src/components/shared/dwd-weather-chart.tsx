@@ -13,6 +13,7 @@ import { useCallback, useMemo } from 'react';
 import { Tooltip, useTooltip, defaultStyles } from '@visx/tooltip';
 import { localPoint } from '@visx/event';
 import { AddHours, GetStartOfDay, GetStartOfHour } from '../../lib/date-time';
+import DwdWeatherCategoryIcon, { WeatherIconSize } from './dwd-weather-category-icon';
 
 export type DwdTemperatureChartProps = {
     temperature: AirTemperatureResult | null;
@@ -26,36 +27,36 @@ type ValueCollections<T> = {
     forecasts: T[];
 }
 
-const DwdWeatherChart = (props: DwdTemperatureChartProps) => {          
-    const {parentRef, width, height} = useParentSize({ debounceTime: 150, enableDebounceLeadingCall: true })
-    const {showTooltip, hideTooltip, tooltipData, tooltipLeft, tooltipTop} = useTooltip<{date: Date, temperature: number, description: string}>()
-    
+const DwdWeatherChart = (props: DwdTemperatureChartProps) => {
+    const { parentRef, width, height } = useParentSize({ debounceTime: 150, enableDebounceLeadingCall: true })
+    const { showTooltip, hideTooltip, tooltipData, tooltipLeft, tooltipTop } = useTooltip<{ date: Date, temperature: number, description: string }>()
+
     const startOfHour = GetStartOfHour(new Date());
     const scaleValues = useMemo(
-        () => getScaleValues(props.temperature, startOfHour), 
+        () => getScaleValues(props.temperature, startOfHour),
         [props.temperature, startOfHour]
     );
     const dimensions = useMemo(
         () => getDimensions(width, height),
         [width, height]
-    ) ;
-    
+    );
+
     const xScale = useMemo(() => scaleTime<number>({
         domain: [scaleValues.minTime, scaleValues.maxTime],
         range: [0, dimensions.innerWidth]
-    }), 
-    [scaleValues, dimensions]);
-        
+    }),
+        [scaleValues, dimensions]);
+
     const yScale = useMemo(() => {
         const room = (scaleValues.maxTemp - scaleValues.minTemp) * 0.05;
-            return scaleLinear<number>({
-                range: [dimensions.innerHeight, 0],
-                domain: [scaleValues.minTemp - room, scaleValues.maxTemp + room],
-                nice: true
-            });
-        }, 
-    [dimensions, scaleValues]) ;
-    
+        return scaleLinear<number>({
+            range: [dimensions.innerHeight, 0],
+            domain: [scaleValues.minTemp - room, scaleValues.maxTemp + room],
+            nice: true
+        });
+    },
+        [dimensions, scaleValues]);
+
     const airTempData = useMemo(
         () => getTemperature(props.temperature),
         [props.temperature]
@@ -70,20 +71,20 @@ const DwdWeatherChart = (props: DwdTemperatureChartProps) => {
     const sunsetX = xScale(props.solarEvents?.sunset!)
     const duskX = xScale(props.solarEvents?.dusk!)
 
-    const handleShowTooltip = useCallback((event: React.TouchEvent<SVGRectElement> | React.MouseEvent<SVGRectElement>) => {                
-        const { x } = localPoint(event) || { x: 0 }    
+    const handleShowTooltip = useCallback((event: React.TouchEvent<SVGRectElement> | React.MouseEvent<SVGRectElement>) => {
+        const { x } = localPoint(event) || { x: 0 }
         const date = xScale.invert(x - dimensions.margins.left);
-      
-        const temperaturePair = getLowerAndUpperValue(props.temperature!.values!, date);                        
+
+        const temperaturePair = getLowerAndUpperValue(props.temperature!.values!, date);
         const deltaY = yScale(temperaturePair.upper.temperature!) - yScale(temperaturePair.lower.temperature!);
         const deltaX = xScale(temperaturePair.upper.time) - xScale(temperaturePair.lower.time);
-        const m = deltaY / deltaX;            
-        const n = yScale(temperaturePair.upper.temperature!) - xScale(temperaturePair.upper.time) * m;               
+        const m = deltaY / deltaX;
+        const n = yScale(temperaturePair.upper.temperature!) - xScale(temperaturePair.upper.time) * m;
         const temperatureAtPoint = yScale.invert(xScale(date) * m + n);
-                
+
         const descriptionPair = getLowerAndUpperValue(props.descriptions!.values!, date);
-        const descriptionAtPoint = date.getTime() - descriptionPair.lower.time.getTime() < descriptionPair.upper.time.getTime() - date.getTime() 
-            ? descriptionPair.lower.category 
+        const descriptionAtPoint = date.getTime() - descriptionPair.lower.time.getTime() < descriptionPair.upper.time.getTime() - date.getTime()
+            ? descriptionPair.lower.category
             : descriptionPair.upper.category;
 
         showTooltip({
@@ -92,16 +93,16 @@ const DwdWeatherChart = (props: DwdTemperatureChartProps) => {
                 temperature: temperatureAtPoint,
                 description: WeatherCategory[descriptionAtPoint]
             },
-            tooltipLeft: x - dimensions.margins.left,   
+            tooltipLeft: x - dimensions.margins.left,
             tooltipTop: yScale(temperatureAtPoint)
         });
-        if(props?.onHover) props.onHover(date);
+        if (props?.onHover) props.onHover(date);
     },
-    [showTooltip, xScale, yScale]);
+        [showTooltip, xScale, yScale]);
 
-    const handleHideTooltip = () => {        
+    const handleHideTooltip = () => {
         hideTooltip();
-        if(props?.onHover) props.onHover(new Date());
+        if (props?.onHover) props.onHover(new Date());
     }
 
     const formatDate: TickFormatter<Date | any> = (date: Date): string => {
@@ -132,21 +133,21 @@ const DwdWeatherChart = (props: DwdTemperatureChartProps) => {
 
                     <GridRows scale={yScale} width={dimensions.innerWidth} stroke='rgba(255, 255, 255, 0.33)' />
                     {descriptions.measurements.filter((x, i) => i % 2 == 0).map(x => {
+                        const xOffset = xScale(x.time);
+                        const size = 50;
                         return (
-                            <Text x={xScale(x.time)}
-                                  angle={-45}
-                                  fill='white'>
-                                    {WeatherCategory[x.category]}
-                            </Text>
+                            <foreignObject x={xOffset} y={-size / 2} width={size} height={size}>
+                                <DwdWeatherCategoryIcon category={x.category} size={WeatherIconSize.Medium} />
+                            </foreignObject>
                         )
                     })}
                     {descriptions.forecasts.filter((x, i) => i % 2 != 0).map(x => {
+                        const xOffset = xScale(x.time);
+                        const size = 50;
                         return (
-                            <Text x={xScale(x.time)}
-                                  angle={-45}
-                                  fill='white'>
-                                    {WeatherCategory[x.category]}
-                            </Text>
+                            <foreignObject x={xOffset} y={-size / 2} width={size} height={size}>
+                                <DwdWeatherCategoryIcon category={x.category} size={WeatherIconSize.Medium} />
+                            </foreignObject>
                         )
                     })}
                     <LinePath<AirTemperature>
@@ -165,58 +166,58 @@ const DwdWeatherChart = (props: DwdTemperatureChartProps) => {
                     <AxisLeft
                         left={0}
                         scale={yScale}
-                        numTicks={5}                        
-                        label='Temperature'/>
+                        numTicks={5}
+                        label='Temperature' />
                     <AxisBottom
                         top={dimensions.innerHeight}
                         scale={xScale}
-                        numTicks={10}                        
+                        numTicks={10}
                         tickFormat={formatDate} />
-                    <Bar 
+                    <Bar
                         x={0}
                         y={0}
                         width={dimensions.innerWidth}
-                        height={dimensions.innerHeight}                        
+                        height={dimensions.innerHeight}
                         fill='transparent'
                         onTouchStart={handleShowTooltip}
-                        onTouchMove={handleShowTooltip}                        
-                        onMouseMove={handleShowTooltip}                                   
+                        onTouchMove={handleShowTooltip}
+                        onMouseMove={handleShowTooltip}
                         onMouseLeave={handleHideTooltip} />
-                        {tooltipData && (
-                            <g>
-                                <Text
-                                    x={tooltipLeft! + 12}
-                                    y={tooltipTop! - 12}
-                                >
-                                    {tooltipData.description}
-                                </Text>
-                                <Line 
-                                    from={{x: tooltipLeft, y: 0}}
-                                    to={{x: tooltipLeft, y: dimensions.innerHeight}}
-                                    stroke='black'
-                                    strokeWidth={2}
-                                    pointerEvents='none'/>  
-                                <circle 
-                                    cx={tooltipLeft}
-                                    cy={tooltipTop}
-                                    r={4}
-                                    fill='black'
-                                    strokeWidth={2} />      
-                                <Text
-                                    x={tooltipLeft! + 12}
-                                    y={tooltipTop! + 6}>
-                                    {(Math.round(tooltipData.temperature*100)/100)+"°C"}
-                                </Text>                                                                                                                                                    
-                            </g>                                
-                        )}       
+                    {tooltipData && (
+                        <g>
+                            <Text
+                                x={tooltipLeft! + 12}
+                                y={tooltipTop! - 12}
+                            >
+                                {tooltipData.description}
+                            </Text>
+                            <Line
+                                from={{ x: tooltipLeft, y: 0 }}
+                                to={{ x: tooltipLeft, y: dimensions.innerHeight }}
+                                stroke='black'
+                                strokeWidth={2}
+                                pointerEvents='none' />
+                            <circle
+                                cx={tooltipLeft}
+                                cy={tooltipTop}
+                                r={4}
+                                fill='black'
+                                strokeWidth={2} />
+                            <Text
+                                x={tooltipLeft! + 12}
+                                y={tooltipTop! + 6}>
+                                {(Math.round(tooltipData.temperature * 100) / 100) + "°C"}
+                            </Text>
+                        </g>
+                    )}
                 </g>
             </ScaleSVG>
             {tooltipData && (
                 <div>
-                    <Tooltip 
+                    <Tooltip
                         key={Math.random()}
-                        top={height+dimensions.margins.top*2}
-                        left={tooltipLeft!-12}
+                        top={height + dimensions.margins.top * 2}
+                        left={tooltipLeft! - 12}
                         style={{
                             ...defaultStyles,
                             border: '1px solid black',
@@ -231,15 +232,15 @@ const DwdWeatherChart = (props: DwdTemperatureChartProps) => {
     )
 };
 
-function getScaleValues(temperature: AirTemperatureResult | null, reference: Date) : {minTime: Date, maxTime: Date, minTemp: number, maxTemp: number} {    
-    if(!temperature){
+function getScaleValues(temperature: AirTemperatureResult | null, reference: Date): { minTime: Date, maxTime: Date, minTemp: number, maxTemp: number } {
+    if (!temperature) {
         return {
             minTime: GetStartOfDay(reference),
             maxTime: AddHours(GetStartOfDay(reference), 24),
             minTemp: 0,
             maxTemp: 25
         }
-    }    
+    }
     return {
         minTime: temperature.values[0].time,
         maxTime: temperature.values[temperature.values.length - 1].time,
@@ -248,20 +249,20 @@ function getScaleValues(temperature: AirTemperatureResult | null, reference: Dat
     }
 }
 
-function getDimensions(width: number, height: number) : { margins: {top: number, bottom: number, left: number, right: number}, innerHeight: number, innerWidth: number } {
+function getDimensions(width: number, height: number): { margins: { top: number, bottom: number, left: number, right: number }, innerHeight: number, innerWidth: number } {
     const marginVertical = 75;
     const marginHorizontal = 50;
 
     const useMarginVertical = height - marginVertical * 2 > 0;
     const useMarginHorizontal = width - marginHorizontal * 2 > 0;
 
-    const margins = { 
-        top: useMarginVertical ? marginVertical : 0, 
-        bottom: useMarginVertical ? marginVertical : 0, 
+    const margins = {
+        top: useMarginVertical ? marginVertical : 0,
+        bottom: useMarginVertical ? marginVertical : 0,
         right: useMarginHorizontal ? marginHorizontal : 0,
         left: useMarginHorizontal ? marginHorizontal : 0
     };
- 
+
     const innerWidth = width - margins.left - margins.right
     const innerHeight = height - margins.top - margins.bottom;
 
@@ -308,21 +309,21 @@ function getDescriptions(data: WeatherDescriptionResult | null): ValueCollection
     return { measurements, forecasts };
 }
 
-function getLowerAndUpperValue<T extends TimeSeriesValue>(data: T[], date: Date) : {lower: T, upper: T} {
+function getLowerAndUpperValue<T extends TimeSeriesValue>(data: T[], date: Date): { lower: T, upper: T } {
     let lower: T = data[0];
     let upper: T = data[1];
-    
-    for(let i=0; i<data.length; i++){
-        let value = data[i];            
-        if(value.time < date) continue;
-                    
+
+    for (let i = 0; i < data.length; i++) {
+        let value = data[i];
+        if (value.time < date) continue;
+
         lower = data[i > 0 ? i - 1 : 0];
         upper = data[i];
-        break;              
+        break;
     }
 
     const result = {
-        lower, 
+        lower,
         upper
     }
 
