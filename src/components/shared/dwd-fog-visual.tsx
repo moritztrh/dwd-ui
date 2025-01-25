@@ -1,6 +1,7 @@
 import { useParentSize } from '@visx/responsive';
 import styles from './dwd-fog-visual.module.css';
 import { useMemo } from 'react';
+import { getRandomIntBetween } from '../../lib/utility';
 
 const DwdFogVisual = () => {        
     const {parentRef, width, height} = useParentSize({ debounceTime: 150, enableDebounceLeadingCall: true })
@@ -57,8 +58,6 @@ function getAnimationClass(): string {
     return random < 5 ? "fog-1" : "fog-2"
 }
 
-function getRandomIntBetween(a: number, b: number) {
-    return Math.floor(Math.random() * (b - a + 1)) + a;
-  }
+
 
 export default DwdFogVisual;

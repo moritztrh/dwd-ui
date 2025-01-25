@@ -4,6 +4,7 @@ import { WeatherCategory } from "../../lib/products/Description";
 import { SolarEvents } from '../../lib/solar-events';
 import classNames from 'classnames';
 import DwdFogVisual from './dwd-fog-visual';
+import DwdRainVisual from './dwd-rain-visual';
 
 export type DwdWeatherVisualizerProps = {
     referenceTime: Date,
@@ -29,7 +30,8 @@ const DwdWeatherVisualizer = (props: PropsWithChildren<DwdWeatherVisualizerProps
     const combinedPartOfDayClasses = classNames(partOfDayClasses);
         
     const showFog = props.categories.indexOf(WeatherCategory.Fog) != -1;
-    
+    const showRain = props.categories.indexOf(WeatherCategory.Rain) != -1;
+
     return (
         <div className={styles['weather-visualizer']}>      
             <div className={combinedPartOfDayClasses}>                
@@ -38,6 +40,11 @@ const DwdWeatherVisualizer = (props: PropsWithChildren<DwdWeatherVisualizerProps
             {showFog && (
                 <div className={styles['weather-visualization']}>
                     <DwdFogVisual />
+                </div>
+            )}
+            {showRain && (
+                <div className={styles['weather-visualization']}>
+                    <DwdRainVisual />
                 </div>
             )}    
             {props.categories.indexOf(WeatherCategory.Cloudy) != -1 && (
