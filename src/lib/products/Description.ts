@@ -43,20 +43,9 @@ export class WeatherDescriptionResult implements ProductResult {
     }
 
     setStats(){
-        var countMap = new Map<WeatherCategory, number>();
-        this.values.forEach(x => {
-            let match = countMap.get(x.category);
-            if(!match){
-                countMap.set(x.category, 1)
-            } else {
-                countMap.set(x.category, match + 1);
-            }
-        });
-        
-        Array.from(countMap).sort((a,b) => b[1]-a[1]).forEach(([cat, count]) => {
-            let share = Math.round((count/this.values.length)*10)/10;
-            this.categoryShares.push({category: cat, share: share});            
-        });        
+
+        let categories = this.values.map(x => x.category);
+        this.categoryShares = CalculateWeatherCategoryShare(categories);      
     }
 }
 
@@ -68,6 +57,23 @@ export enum WeatherCategory {
     Snow,
     Thunder,
     Unknown
+}
+
+export function CalculateWeatherCategoryShare(categories: WeatherCategory[]) : WeatherCategoryShare[] {
+    var countMap = new Map<WeatherCategory, number>();
+    categories.forEach(x => {
+        let match = countMap.get(x);
+        if(!match){
+            countMap.set(x, 1)
+        } else {
+            countMap.set(x, match + 1);
+        }
+    });
+    
+    return Array.from(countMap).sort((a,b) => b[1]-a[1]).map((kvp) => {
+        let share = Math.round((kvp[1]/categories.length)*10)/10;
+        return {category: kvp[0], share}
+    });       
 }
 
 export class WeatherDescription implements TimeSeriesValue {

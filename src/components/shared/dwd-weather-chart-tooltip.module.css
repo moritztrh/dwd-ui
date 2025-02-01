@@ -1,0 +1,7 @@
+.tool-tip-content > div {
+    display: flex;   
+    gap: 0.25rem;
+    padding: 0.25rem;     
+    justify-content: center; 
+    background-color: rgba(0,0,0, 0.1);
+}

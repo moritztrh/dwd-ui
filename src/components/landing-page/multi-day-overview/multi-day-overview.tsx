@@ -4,8 +4,7 @@ import { groupByDay } from "./data";
 import { Coordinates, WeatherData } from "../../../lib/api-types";
 
 export type MultiDayOverviewProps = {
-    data: WeatherData;
-    onDaySelect: (date: Date) => void
+    data: WeatherData;    
 }
 
 const MultiDayOverview = (props: MultiDayOverviewProps) => {    
@@ -15,8 +14,7 @@ const MultiDayOverview = (props: MultiDayOverviewProps) => {
         <div className={styles["multi-day-overview"]}>
             {dailyData.results.map(x => <DailyOverView key={x.date.toISOString()} 
                                                        coordinates={coordinates}
-                                                       data={x}
-                                                       onDaySelect={props.onDaySelect}/>)}
+                                                       data={x} />)}
         </div>
     </>
 }

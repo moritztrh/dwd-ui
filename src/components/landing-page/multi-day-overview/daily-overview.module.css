@@ -1,16 +1,8 @@
-.daily-overview {
+.daily-overview {    
     display: grid;    
     align-items: center;        
     grid-template-columns: repeat(3, 1fr);
 
-    background-color: rgba(0,0,0,0.05);
-    padding: 1rem;
-    border-radius: 0.25rem;
-}
-
-.daily-overview:hover {
-    box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.25);    
-    cursor: pointer;
 }
 
 .daily-overview > div:last-child {

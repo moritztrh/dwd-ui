@@ -1,0 +1,15 @@
+.dwd-card {
+    background-color: rgba(0,0,0,0.2);    
+    padding: 1rem;
+    border-radius: 0.25rem;
+}
+
+.clickable:hover {
+    box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.25);    
+    cursor: pointer;
+}
+
+.link {
+    color: inherit;
+    text-decoration: inherit;
+}

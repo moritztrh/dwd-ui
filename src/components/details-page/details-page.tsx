@@ -58,13 +58,13 @@ const DetailsPage = () => {
     const descriptions = data.results.filter(x => x instanceof WeatherDescriptionResult)[0] as WeatherDescriptionResult;    
         
     const handleHover = (time: Date) => {        
-        const category = descriptions.getForTime(time)?.category ?? WeatherCategory.Clear;             
+        const category = descriptions.getForTime(time)?.category ?? WeatherCategory.Clear;        
         setVisualizerProps({
             referenceTime: time,             
             solarEvents: solarEvents,            
             categories: [category]})
     }
-    
+        
     return (
         <DwdPageLayout title="Weather" visualizer={visualizerProps}>
             <div className={styles["meta"]}>
