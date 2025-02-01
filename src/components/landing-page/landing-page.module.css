@@ -1,5 +1,4 @@
-.location-form-container {
-    height: 100vh;    
+.location-form-container {    
     display: flex;
     justify-content: center;
     padding-top: 33vh;
